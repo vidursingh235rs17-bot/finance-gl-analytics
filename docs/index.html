@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GL Analytics · Northfield Industrial Supplies</title>
+<meta name="description" content="Interactive financial dashboard: performance, budget variance, balance sheet, cash flow and journal entry testing on a full general ledger.">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script src="data.js"></script>
+<style>
+  :root {
+    --canvas: #0B1220; --card: #131C2E; --border: #22304A; --head: #0F1A2E; --row: #162036; --rowhead: #1A2540;
+    --ink: #E8EEF7; --body: #C3CEDF; --muted: #8A9BB5; --grid: #1F2B42;
+    --blue: #4EA8DE; --teal: #2EC4B6; --amber: #F4A261; --red: #FF6B6B; --py: #3A4A66;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--canvas); color: var(--body);
+    font: 14px/1.45 "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; }
+  header { position: sticky; top: 0; z-index: 10; background: var(--head); border-bottom: 1px solid var(--border); }
+  .bar { max-width: 1440px; margin: 0 auto; padding: 12px 24px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .brand { color: var(--ink); font-weight: 600; font-size: 17px; white-space: nowrap; }
+  .brand span { color: var(--teal); font-weight: 400; font-size: 13px; margin-left: 8px; }
+  nav { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; }
+  nav a { color: var(--muted); text-decoration: none; padding: 7px 12px; border-radius: 8px; font-size: 13.5px; }
+  nav a:hover { color: var(--ink); background: var(--row); }
+  nav a.on { color: var(--ink); background: var(--rowhead); box-shadow: inset 0 -2px 0 var(--teal); }
+  .fy { display: flex; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 3px; }
+  .fy button { all: unset; cursor: pointer; padding: 6px 12px; border-radius: 7px; color: var(--muted); font-size: 13px; }
+  .fy button.on { background: var(--teal); color: #06221F; font-weight: 600; }
+  main { max-width: 1440px; margin: 0 auto; padding: 20px 24px 8px; }
+  .title { display: flex; align-items: baseline; gap: 14px; margin: 4px 0 16px; flex-wrap: wrap; }
+  .title h1 { margin: 0; color: var(--ink); font-size: 24px; font-weight: 600; }
+  .title p { margin: 0; color: var(--teal); font-size: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px;
+    box-shadow: 0 3px 14px rgba(0,0,0,.35); min-width: 0; }
+  .card h3 { margin: 0 0 6px; color: var(--ink); font-size: 14px; font-weight: 600; }
+  .card .hint { color: var(--muted); font-size: 12px; margin: -2px 0 6px; }
+  .kpi .v { color: #fff; font-size: 30px; font-weight: 600; letter-spacing: .3px; margin-top: 6px; }
+  .kpi .n { font-size: 12px; margin-top: 2px; min-height: 17px; color: var(--muted); }
+  .good { color: var(--teal) !important; } .bad { color: var(--red) !important; }
+  .chart { width: 100%; height: 320px; }
+  .s2 { grid-column: span 2; } .s3 { grid-column: span 3; } .s4 { grid-column: span 4; } .s5 { grid-column: span 5; }
+  .s6 { grid-column: span 6; } .s7 { grid-column: span 7; } .s8 { grid-column: span 8; } .s12 { grid-column: span 12; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; grid-column: span 12; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; color: var(--ink); background: var(--rowhead); font-weight: 600; padding: 7px 8px; position: sticky; top: 0; }
+  td { padding: 6px 8px; border-bottom: 1px solid var(--grid); color: var(--body); }
+  td.r, th.r { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.cls td { color: var(--ink); font-weight: 600; background: var(--row); cursor: pointer; }
+  tr.cls td:first-child::before { content: "▾ "; color: var(--muted); }
+  tr.cls.closed td:first-child::before { content: "▸ "; }
+  tr.tot td { color: var(--ink); font-weight: 700; border-top: 1px solid var(--border); }
+  tr.sub td:first-child { padding-left: 26px; }
+  tr.click { cursor: pointer; } tr.click:hover td { background: var(--rowhead); }
+  .scroll { max-height: 520px; overflow: auto; }
+  .chip { display: inline-flex; gap: 8px; align-items: center; background: var(--rowhead); color: var(--ink);
+    border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; font-size: 12px; margin-left: 8px; }
+  .chip button { all: unset; cursor: pointer; color: var(--muted); }
+  .findings ul { margin: 6px 0 0; padding-left: 18px; } .findings li { margin: 5px 0; }
+  .big { color: #fff; font-size: 34px; font-weight: 600; margin: 18px 0 6px; }
+  select { background: var(--row); color: var(--ink); border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; font: inherit; max-width: 100%; }
+  .btn { all: unset; cursor: pointer; color: var(--ink); background: var(--rowhead); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-size: 13px; }
+  footer { max-width: 1440px; margin: 0 auto; padding: 18px 24px 28px; color: var(--muted); font-size: 12.5px; }
+  footer a { color: var(--blue); }
+  section { display: none; } section.on { display: block; }
+  @media (max-width: 1000px) {
+    .s2, .s3, .s4, .s5, .s6, .s7, .s8 { grid-column: span 12; }
+    .bar { padding: 10px 14px; gap: 10px; } main { padding: 14px; } .kpi .v { font-size: 26px; }
+    .brand { flex: 1; }
+    nav { order: 3; flex: 0 0 100%; flex-wrap: nowrap; overflow-x: auto; }
+    nav a { white-space: nowrap; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="brand">Northfield Industrial Supplies<span>GL analytics</span></div>
+    <nav id="nav"></nav>
+    <div class="fy" id="fy"></div>
+  </div>
+</header>
+
+<main>
+  <section id="performance">
+    <div class="title"><h1>Performance summary</h1><p>Revenue, margin and profit against budget and last year</p></div>
+    <div class="grid">
+      <div class="kpis" id="perf-kpis"></div>
+      <div class="card s8"><h3>Monthly revenue vs budget (₹ Cr) and EBITDA margin</h3><div class="chart" id="c-combo"></div></div>
+      <div class="card s4"><h3>Revenue mix by product line</h3><div class="chart" id="c-mix"></div></div>
+      <div class="card s4"><h3>Gross margin %: this year vs last year</h3><div class="chart" id="c-gm"></div></div>
+      <div class="card s4"><h3>Revenue by sales region (₹ Cr)</h3><div class="chart" id="c-region"></div></div>
+      <div class="card s4 findings"><h3>Key findings FY2025-26</h3><ul>
+        <li>Revenue grew 13.1% to ₹96.41 Cr, 0.6% short of budget.</li>
+        <li>EBITDA fell 13.5% to ₹7.15 Cr, ₹3.05 Cr below budget.</li>
+        <li>Gross margin dropped from 28.9% to 26.7%: Bearings grew fastest but earns the lowest margin.</li>
+        <li>Freight overran budget by ₹85 L and professional fees by ₹54 L.</li></ul></div>
+    </div>
+  </section>
+
+  <section id="variance">
+    <div class="title"><h1>Budget variance</h1><p>Which accounts and product lines drive the gap to budget</p></div>
+    <div class="grid">
+      <div class="kpis" id="var-kpis"></div>
+      <div class="card s7"><h3>Profit and loss vs budget (₹ lakh, favourable + / adverse −)</h3>
+        <div class="hint">Click a line to show or hide its accounts.</div><div class="scroll" id="t-variance"></div></div>
+      <div class="card s5"><h3>Gross margin % by product line</h3><div class="chart" id="c-gmpl"></div></div>
+      <div class="card s7"><h3>Budget PAT → actual PAT: where the gap came from (₹ lakh)</h3><div class="chart" id="c-wfvar"></div></div>
+      <div class="card s5 findings"><h3>Key findings FY2025-26</h3><ul>
+        <li>PAT ₹223 L below budget (46%).</li>
+        <li>Revenue only 0.6% short, but the mix shifted: Bearings +₹246 L, Fasteners −₹218 L.</li>
+        <li>COGS ₹136 L over budget, mainly Bearings (−₹273 L).</li>
+        <li>Freight −₹85 L and professional fees −₹54 L, partly offset by ₹44 L of unspent marketing.</li></ul></div>
+    </div>
+  </section>
+
+  <section id="balance">
+    <div class="title"><h1>Balance sheet and working capital</h1><p>Year-end position and where cash is tied up</p></div>
+    <div class="grid">
+      <div class="kpis" id="bs-kpis"></div>
+      <div class="card s6"><h3>Balance sheet (₹ Cr): year end vs a year earlier</h3>
+        <div class="hint">Click a line to show or hide its accounts.</div><div class="scroll" id="t-bs"></div></div>
+      <div class="card s6"><h3 id="h-ageing">Receivables ageing (₹ Cr)</h3><div class="chart" id="c-ageing"></div></div>
+      <div class="card s4"><h3 id="h-overdue">Customers more than 90 days overdue (₹ lakh)</h3><div id="t-overdue"></div></div>
+      <div class="card s3"><h3>Receivables: ledger less invoice list (₹ lakh)</h3><div class="big" id="ar-rec"></div>
+        <div class="hint">Anything other than zero needs explaining. FY26: one manual write-off posted straight to the control account.</div></div>
+      <div class="card s5"><h3>DSO and DIO by month (days)</h3><div class="chart" id="c-dso"></div></div>
+    </div>
+  </section>
+
+  <section id="cash">
+    <div class="title"><h1>Cash flow</h1><p>From profit to cash: where the money went</p></div>
+    <div class="grid">
+      <div class="kpis" id="cf-kpis"></div>
+      <div class="card s7"><h3>From profit to cash: movement in the year (₹ Cr)</h3><div class="chart" id="c-wfcash" style="height:360px"></div></div>
+      <div class="card s5"><h3>Cash flow statement (₹ Cr)</h3><div id="t-cash"></div></div>
+      <div class="card s6"><h3>Bank balance at each month end (₹ Cr)</h3><div class="chart" id="c-bank"></div></div>
+      <div class="card s6"><h3>Cash from operations by month (₹ Cr)</h3><div class="chart" id="c-cfo"></div></div>
+    </div>
+  </section>
+
+  <section id="journals">
+    <div class="title"><h1>Journal entry testing</h1><p>Manual journals and payments that fail audit tests</p></div>
+    <div class="grid">
+      <div class="kpis" id="jt-kpis"></div>
+      <div class="card s5"><h3>How many journals failed each check</h3><div class="hint">Click a bar to filter the list.</div>
+        <div class="chart" id="c-tests" style="height:360px"></div></div>
+      <div class="card s7"><h3>Flagged journals to review<span id="chip"></span></h3>
+        <div class="hint">Click a journal to see its full double entry.</div><div class="scroll" id="t-journals" style="max-height:600px"></div></div>
+      <div class="card s5"><h3>Who prepared the flagged journals</h3><div class="hint">Click a bar to filter the list.</div>
+        <div class="chart" id="c-prep" style="height:220px"></div></div>
+    </div>
+  </section>
+
+  <section id="detail">
+    <div class="title"><h1>Journal detail</h1><p>The full double entry behind a flagged journal</p></div>
+    <div class="grid">
+      <div class="card s12" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <button class="btn" onclick="go('journals')">← Back to journal testing</button>
+        <label style="color:var(--muted)">Journal</label><select id="pick"></select></div>
+      <div class="kpis" id="jd-kpis"></div>
+      <div class="card s12"><h3>Who posted it and why it was flagged</h3><div id="t-who"></div></div>
+      <div class="card s12"><h3>Accounts debited and credited</h3><div id="t-lines"></div></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  Web companion to the Power BI report in <a href="https://github.com/vidursingh235rs17-bot/finance-gl-analytics">github.com/vidursingh235rs17-bot/finance-gl-analytics</a>.
+  The company and ledger are fictional. Every figure is calculated from the same CSV files by <code>scripts/build_web.py</code> and checked against the Power BI report.
+</footer>
+
+<script>
+const D = window.DATA;
+const C = { blue: "#4EA8DE", teal: "#2EC4B6", amber: "#F4A261", red: "#FF6B6B", py: "#3A4A66",
+            ink: "#E8EEF7", body: "#C3CEDF", muted: "#8A9BB5", grid: "#1F2B42", card: "#131C2E" };
+const PAGES = [["performance", "Performance"], ["variance", "Budget variance"], ["balance", "Balance sheet"],
+               ["cash", "Cash flow"], ["journals", "Journal testing"], ["detail", "Journal detail"]];
+let FY = "FY2025-26", PAGE = "performance", testFilter = null, prepFilter = null, journal = null;
+const charts = {};
+
+// ------------------------------------------------------------------ helpers
+const $ = id => document.getElementById(id);
+// toFixed rounds the stored binary value, as Power BI and Python do (2.395 shows as 2.39 in all three).
+const fmt = (v, d = 2) => {
+  if (v == null || isNaN(v)) return "–";
+  const [i, f] = Math.abs(v).toFixed(d).split(".");
+  return (v < 0 && Number(Math.abs(v).toFixed(d)) ? "-" : "") + Number(i).toLocaleString("en-IN") + (f ? "." + f : "");
+};
+const sgn = (v, d = 2) => (v > 0 ? "+" : v < 0 ? "−" : "") + fmt(Math.abs(v), d);
+const pct = (v, d = 1) => (v * 100).toFixed(d) + "%";
+const arrow = v => v < 0 ? "▼ " : "▲ ";
+const inr = v => fmt(v, 2);
+const py = () => FY === "FY2025-26" ? D.fy["FY2024-25"] : null;
+const cur = () => D.fy[FY];
+
+function kpi(title, value, note = "", tone = "") {
+  return `<div class="card kpi"><h3>${title}</h3><div class="v">${value}</div><div class="n ${tone}">${note}</div></div>`;
+}
+function chart(id, option) {
+  if (!charts[id]) charts[id] = echarts.init($(id), null, { renderer: "canvas" });
+  charts[id].setOption(Object.assign({
+    backgroundColor: "transparent", textStyle: { color: C.body, fontFamily: "Segoe UI, system-ui, sans-serif" },
+    tooltip: { trigger: "axis", backgroundColor: "#0F1A2E", borderColor: "#22304A", textStyle: { color: C.ink } },
+    grid: { left: 8, right: 16, top: 34, bottom: 8, containLabel: true },
+  }, option), true);
+}
+const axis = (extra = {}) => Object.assign({ axisLine: { lineStyle: { color: C.grid } }, axisLabel: { color: C.muted },
+  splitLine: { lineStyle: { color: C.grid, type: "dotted" } }, axisTick: { show: false } }, extra);
+const legend = { top: 0, textStyle: { color: C.body }, itemWidth: 10, itemHeight: 10, icon: "circle" };
+function months(series) { return series.filter(m => m.fy === FY); }
+
+function waterfall(id, cats, values, total, opts = {}) {
+  let run = 0; const base = [], bar = [], col = [];
+  values.forEach(v => { base.push(Math.min(run, run + v)); bar.push(Math.abs(v)); col.push(v >= 0 ? C.teal : C.red); run += v; });
+  base.push(Math.min(0, total)); bar.push(Math.abs(total)); col.push(C.blue);
+  const signed = [...values, total];
+  chart(id, {
+    tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, backgroundColor: "#0F1A2E", borderColor: "#22304A",
+      textStyle: { color: C.ink }, formatter: p => `${p[0].name}<br><b>${sgn(signed[p[0].dataIndex], opts.d ?? 2)}</b>` },
+    xAxis: axis({ type: "category", data: [...cats, opts.totalLabel || "Total"], axisLabel: { color: C.muted, interval: 0, width: 80, overflow: "break", fontSize: 11 } }),
+    yAxis: axis({ type: "value" }),
+    series: [
+      { type: "bar", stack: "w", stackStrategy: "all", data: base, itemStyle: { color: "transparent" }, emphasis: { disabled: true } },
+      { type: "bar", stack: "w", stackStrategy: "all", data: bar.map((v, i) => ({ value: v, itemStyle: { color: col[i], borderRadius: 3 } })),
+        label: { show: true, position: "top", color: C.body, fontSize: 11, formatter: p => sgn(signed[p.dataIndex], opts.d ?? 2) } },
+    ],
+  });
+}
+
+// ------------------------------------------------------------- performance
+function renderPerformance() {
+  const k = cur().kpi, p = py()?.kpi;
+  const ch = (a, b) => (a - b) / Math.abs(b);
+  $("perf-kpis").innerHTML = [
+    kpi("Revenue (₹ Cr)", fmt(k.revenue), p ? `${arrow(ch(k.revenue, p.revenue))}${pct(Math.abs(ch(k.revenue, p.revenue)))} vs last year · budget ${fmt(k.budget_revenue)}` : `Budget ${fmt(k.budget_revenue)}`, p ? (k.revenue >= p.revenue ? "good" : "bad") : ""),
+    kpi("Gross margin", pct(k.gm, 2), p ? `${arrow(k.gm - p.gm)}${(Math.abs(k.gm - p.gm) * 100).toFixed(1)} pts vs last year` : `Gross profit ₹${fmt(k.gp)} Cr`, p ? (k.gm >= p.gm ? "good" : "bad") : ""),
+    kpi("EBITDA (₹ Cr)", fmt(k.ebitda), p ? `${arrow(ch(k.ebitda, p.ebitda))}${pct(Math.abs(ch(k.ebitda, p.ebitda)))} vs last year · margin ${pct(k.ebitda_margin)}` : `Margin ${pct(k.ebitda_margin)}`, p ? (k.ebitda >= p.ebitda ? "good" : "bad") : ""),
+    kpi("Profit after tax (₹ Cr)", fmt(k.pat), p ? `${arrow(ch(k.pat, p.pat))}${pct(Math.abs(ch(k.pat, p.pat)))} vs last year · margin ${pct(k.pat_margin)}` : `Margin ${pct(k.pat_margin)}`, p ? (k.pat >= p.pat ? "good" : "bad") : ""),
+    kpi("EBITDA vs budget (₹ Cr)", sgn(k.ebitda - k.budget_ebitda), `Budget ${fmt(k.budget_ebitda)} · ${pct((k.ebitda - k.budget_ebitda) / k.budget_ebitda)} vs budget`, k.ebitda >= k.budget_ebitda ? "good" : "bad"),
+  ].join("");
+  const ms = months(D.monthly);
+  chart("c-combo", {
+    legend: Object.assign({}, legend, { data: ["Actual", "Budget", "EBITDA margin"] }),
+    xAxis: axis({ type: "category", data: ms.map(m => m.label.replace(" 20", " ")) }),
+    yAxis: [axis({ type: "value" }), axis({ type: "value", splitLine: { show: false }, axisLabel: { color: C.muted, formatter: v => (v * 100).toFixed(0) + "%" } })],
+    series: [
+      { name: "Actual", type: "bar", data: ms.map(m => m.rev), itemStyle: { color: C.blue, borderRadius: [3, 3, 0, 0] } },
+      { name: "Budget", type: "bar", data: ms.map(m => m.bud_rev), itemStyle: { color: C.teal, borderRadius: [3, 3, 0, 0] } },
+      { name: "EBITDA margin", type: "line", yAxisIndex: 1, data: ms.map(m => m.ebitda_margin), color: C.amber, symbolSize: 6,
+        tooltip: { valueFormatter: v => pct(v) } },
+    ],
+    tooltip: { trigger: "axis", backgroundColor: "#0F1A2E", borderColor: "#22304A", textStyle: { color: C.ink },
+      valueFormatter: v => v < 1 ? pct(v) : "₹" + fmt(v) + " Cr" },
+  });
+  const mix = cur().mix;
+  chart("c-mix", {
+    tooltip: { trigger: "item", backgroundColor: "#0F1A2E", borderColor: "#22304A", textStyle: { color: C.ink }, valueFormatter: v => "₹" + fmt(v) + " Cr" },
+    title: { text: fmt(k.revenue), subtext: "₹ Cr", left: "center", top: "40%", textStyle: { color: "#fff", fontSize: 26, fontWeight: 600 }, subtextStyle: { color: C.muted } },
+    series: [{ type: "pie", radius: ["50%", "70%"], center: ["50%", "52%"],
+      data: mix.map(m => ({ ...m, itemStyle: { color: { "Fasteners": C.blue, "Bearings": C.teal }[m.name] || C.amber } })),
+      itemStyle: { borderColor: C.card, borderWidth: 3 }, label: { color: C.body, formatter: "{b}\n{d}%", overflow: "none" } }],
+  });
+  const pm = py() ? months(D.monthly.map((m, i) => ({ ...m, pygm: i >= 12 ? D.monthly[i - 12].gm : null }))) : ms;
+  chart("c-gm", {
+    legend, xAxis: axis({ type: "category", data: ms.map(m => m.label.replace(" 20", " ")) }),
+    yAxis: axis({ type: "value", scale: true, axisLabel: { color: C.muted, formatter: v => (v * 100).toFixed(0) + "%" } }),
+    tooltip: { trigger: "axis", backgroundColor: "#0F1A2E", borderColor: "#22304A", textStyle: { color: C.ink }, valueFormatter: v => v == null ? "–" : pct(v) },
+    series: [{ name: "This year", type: "line", data: ms.map(m => m.gm), color: C.blue, symbolSize: 6 }]
+      .concat(py() ? [{ name: "Last year", type: "line", data: pm.map(m => m.pygm), color: C.teal, symbolSize: 6 }] : []),
+  });
+  const rg = cur().regions;
+  chart("c-region", {
+    legend, yAxis: axis({ type: "category", data: rg.map(r => r.name).reverse() }), xAxis: axis({ type: "value" }),
+    tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, backgroundColor: "#0F1A2E", borderColor: "#22304A", textStyle: { color: C.ink }, valueFormatter: v => "₹" + fmt(v) + " Cr" },
+    series: [{ name: "Actual", type: "bar", data: rg.map(r => r.actual).reverse(), color: C.blue, itemStyle: { borderRadius: [0, 3, 3, 0] } },
+             { name: "Budget", type: "bar", data: rg.map(r => r.budget).reverse(), color: C.teal, itemStyle: { borderRadius: [0, 3, 3, 0] } }],
+  });
+}
+
+// --------------------------------------------------------- budget variance
+const CLASS_ORDER = ["Revenue", "COGS", "Operating Expenses", "Depreciation", "Finance Costs", "Tax"];
+const closed = new Set();
+function groupedTable(el, rows, cols, groups, totalRow) {
+  let h = `<table><tr>${cols.map((c, i) => `<th class="${i ? "r" : ""}">${c.t}</th>`).join("")}</tr>`;
+  groups.forEach(g => {
+    const key = el + g.name, isClosed = closed.has(key);
+    h += `<tr class="cls ${isClosed ? "closed" : ""}" data-k="${key}">${cols.map((c, i) => `<td class="${i ? "r" : ""}">${i ? c.f(g.sum, true) : g.name}</td>`).join("")}</tr>`;
+    if (!isClosed) g.rows.forEach(r => h += `<tr class="sub">${cols.map((c, i) => `<td class="${i ? "r" : ""}">${i ? c.f(r) : r.name}</td>`).join("")}</tr>`);
+  });
+  if (totalRow) h += `<tr class="tot">${cols.map((c, i) => `<td class="${i ? "r" : ""}">${i ? c.f(totalRow, true) : "Total"}</td>`).join("")}</tr>`;
+  $(el).innerHTML = h + "</table>";
+  $(el).querySelectorAll("tr.cls").forEach(tr => tr.onclick = () => { closed.has(tr.dataset.k) ? closed.delete(tr.dataset.k) : closed.add(tr.dataset.k); render(); });
+}
+function renderVariance() {
+  const k = cur().kpi;
+  $("var-kpis").innerHTML = [
+    kpi("Revenue vs budget (₹ Cr)", sgn(k.revenue - k.budget_revenue), `Actual ${fmt(k.revenue)} vs budget ${fmt(k.budget_revenue)}`, k.revenue >= k.budget_revenue ? "good" : "bad"),
+    kpi("EBITDA vs budget (₹ Cr)", sgn(k.ebitda - k.budget_ebitda), `Budget ${fmt(k.budget_ebitda)} · ${pct((k.ebitda - k.budget_ebitda) / k.budget_ebitda)} vs budget`, k.ebitda >= k.budget_ebitda ? "good" : "bad"),
+    kpi("Gross margin", pct(k.gm, 1), py() ? `Last year ${pct(py().kpi.gm, 1)}` : "", py() ? (k.gm >= py().kpi.gm ? "good" : "bad") : ""),
+  ].join("");
+  const v = cur().variance;
+  const sum = rs => ({ actual: rs.reduce((a, r) => a + r.actual, 0), budget: rs.reduce((a, r) => a + r.budget, 0), var: rs.reduce((a, r) => a + r.var, 0) });
+  const groups = CLASS_ORDER.map(c => { const rows = v.filter(r => r.cls === c); return { name: c, rows, sum: sum(rows) }; });
+  const vcell = r => `<span class="${r.var < 0 ? "bad" : "good"}">${sgn(r.var, 1)}</span>`;
+  groupedTable("t-variance", v, [
+    { t: "P&L line" }, { t: "Actual", f: r => fmt(r.actual, 1) }, { t: "Budget", f: r => fmt(r.budget, 1) },
+    { t: "Fav / (Adv)", f: vcell },
+    { t: "Var %", f: r => `<span class="${r.var < 0 ? "bad" : "good"}">${r.budget ? sgn(r.var / r.budget * 100, 1) + "%" : "–"}</span>` },
+  ], groups, { ...sum(v), actual: NaN, budget: NaN, var: sum(v).var });
+  document.querySelectorAll("#t-variance tr.tot td.r").forEach((td, i) => { if (i < 2) td.textContent = ""; if (i === 3) td.textContent = ""; });
+  const gp = cur().gm_by_product, pgp = py()?.gm_by_product;
+  chart("c-gmpl", {
+    legend, xAxis: axis({ type: "category", data: gp.map(g => g.name) }),
+    yAxis: axis({ type: "value", axisLabel: { color: C.muted, formatter: v => (v * 100).toFixed(0) + "%" } }),
+    tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, backgroundColor: "#0F1A2E", borderColor: "#22304A", textStyle: { color: C.ink }, valueFormatter: v => pct(v) },
+    series: [{ name: "This year", type: "bar", data: gp.map(g => g.gm), color: C.teal, itemStyle: { borderRadius: [3, 3, 0, 0] }, label: { show: true, position: "top", color: C.body, formatter: p => pct(p.value) } }]
+      .concat(pgp ? [{ name: "Last year", type: "bar", data: pgp.map(g => g.gm), color: C.py, itemStyle: { borderRadius: [3, 3, 0, 0] }, label: { show: true, position: "top", color: C.muted, formatter: p => pct(p.value) } }] : []),
+  });
+  const vals = groups.map(g => g.sum.var);
+  waterfall("c-wfvar", CLASS_ORDER.map(c => c === "Operating Expenses" ? "Opex" : c), vals, vals.reduce((a, b) => a + b, 0), { d: 1, totalLabel: "PAT gap" });
+}
+
+// ------------------------------------------------------------ balance sheet
+function renderBalance() {
+  const b = cur().bs_cards;
+  $("bs-kpis").innerHTML = [
+    kpi("Bank (₹ Cr)", fmt(b.bank)), kpi("Net working capital (₹ Cr)", fmt(b.nwc), "Receivables + inventory − payables"),
+    kpi("Borrowings (₹ Cr)", fmt(b.borrowings)), kpi("DSO (days)", b.dso, "Days sales outstanding"),
+    kpi("DIO (days)", b.dio, "Days inventory outstanding"), kpi("Balance check", fmt(b.check, 0), "Assets − liabilities − equity", b.check === 0 ? "good" : "bad"),
+  ].join("");
+  const bs = cur().balance_sheet;
+  const groups = ["Assets", "Liabilities", "Equity"].map(c => {
+    const rows = bs.filter(r => r.cls === c);
+    return { name: c, rows, sum: { ye: rows.reduce((a, r) => a + r.ye, 0), py: rows.every(r => r.py == null) ? null : rows.reduce((a, r) => a + (r.py || 0), 0) } };
+  });
+  const chg = r => r.py == null ? "–" : sgn(r.ye - r.py);
+  groupedTable("t-bs", bs, [{ t: "Balance sheet line" }, { t: "Year end", f: r => fmt(r.ye) }, { t: "Year earlier", f: r => fmt(r.py) }, { t: "Change", f: chg }], groups);
+  $("h-ageing").textContent = `Receivables ageing at ${cur().as_at} (₹ Cr)`;
+  $("h-overdue").textContent = `Customers more than 90 days overdue at ${cur().as_at} (₹ lakh)`;
+  const ag = cur().ageing, AG = ["#2EC4B6", "#4EA8DE", "#F4A261", "#E07B39", "#FF6B6B", "#C0392B"];
+  chart("c-ageing", {
+    xAxis: axis({ type: "category", data: ag.map(a => a.name) }), yAxis: axis({ type: "value" }),
+    tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, backgroundColor: "#0F1A2E", borderColor: "#22304A", textStyle: { color: C.ink }, valueFormatter: v => "₹" + fmt(v) + " Cr" },
+    series: [{ type: "bar", data: ag.map((a, i) => ({ value: a.value, itemStyle: { color: AG[i], borderRadius: [4, 4, 0, 0] } })), barWidth: "55%",
+      label: { show: true, position: "top", color: C.body, formatter: p => fmt(p.value) } }],
+  });
+  const od = cur().overdue;
+  $("t-overdue").innerHTML = `<table><tr><th>Customer</th><th class="r">Over 90 days</th></tr>${od.map(o => `<tr><td>${o.name}</td><td class="r">${fmt(o.value, 1)}</td></tr>`).join("")}
+    <tr class="tot"><td>Total</td><td class="r">${fmt(od.reduce((a, o) => a + o.value, 0), 1)}</td></tr></table>`;
+  const r = cur().ar_rec_diff;
+  $("ar-rec").innerHTML = `<span class="${Math.abs(r) > 0.005 ? "bad" : "good"}">${sgn(r)}</span>`;
+  const cm = months(D.cash_monthly);
+  chart("c-dso", {
+    legend, xAxis: axis({ type: "category", data: cm.map(m => m.label.replace(" 20", " ")) }), yAxis: axis({ type: "value", scale: true }),
+    series: [{ name: "DSO", type: "line", data: cm.map(m => m.dso), color: C.blue, symbolSize: 6, label: { show: true, color: C.muted, fontSize: 10 } },
+             { name: "DIO", type: "line", data: cm.map(m => m.dio), color: C.amber, symbolSize: 6, label: { show: true, color: C.muted, fontSize: 10 } }],
+  });
+}
+
+// -------------------------------------------------------------- cash flow
+function renderCash() {
+  const cf = cur().cash_flow, cc = cur().cash_cards, p = py();
+  const sec = (d, s) => d.cash_flow.filter(x => x.section === s).reduce((a, x) => a + x.value, 0);
+  const op = sec(cur(), "Operating"), inv = sec(cur(), "Investing"), fin = sec(cur(), "Financing"), pat = cf[0].value;
+  $("cf-kpis").innerHTML = [
+    kpi("Opening cash (₹ Cr)", fmt(cc.opening), "Bank balance at the start of the year"),
+    kpi("Cash from operations (₹ Cr)", sgn(op), `PAT ${fmt(pat)} · cash conversion ${(op / pat * 100).toFixed(0)}%`, op < 0 ? "bad" : "good"),
+    kpi("Investing (₹ Cr)", sgn(inv), `Free cash flow ${sgn(op + inv)}`),
+    kpi("Financing (₹ Cr)", sgn(fin), `Borrowings at year end ${fmt(cc.borrowings)}`),
+    kpi("Closing cash (₹ Cr)", fmt(cc.closing), `${arrow(cc.net)}${fmt(Math.abs(cc.net))} in the year`, cc.net < 0 ? "bad" : "good"),
+  ].join("");
+  waterfall("c-wfcash", cf.map(x => x.line), cf.map(x => x.value), cc.net, { totalLabel: "Net change" });
+  let h = `<table><tr><th>Cash flow</th><th class="r">This year</th><th class="r">Last year</th></tr>`;
+  ["Operating", "Investing", "Financing"].forEach(s => {
+    const lines = cf.filter(x => x.section === s);
+    h += `<tr class="cls" style="cursor:default"><td>${s}</td><td class="r">${sgn(sec(cur(), s))}</td><td class="r">${p ? sgn(sec(p, s)) : "–"}</td></tr>`;
+    lines.forEach(x => { const pv = p?.cash_flow.find(y => y.line === x.line)?.value;
+      h += `<tr class="sub"><td>${x.line}</td><td class="r ${x.value < 0 ? "bad" : "good"}">${sgn(x.value)}</td><td class="r">${pv == null ? "–" : sgn(pv)}</td></tr>`; });
+  });
+  h += `<tr class="tot"><td>Net change in cash</td><td class="r">${sgn(cc.net)}</td><td class="r">${p ? sgn(p.cash_cards.net) : "–"}</td></tr></table>`;
+  $("t-cash").innerHTML = h;
+  const cm = months(D.cash_monthly), lab = cm.map(m => m.label.replace(" 20", " "));
+  chart("c-bank", {
+    xAxis: axis({ type: "category", data: lab, boundaryGap: false }), yAxis: axis({ type: "value", scale: true }),
+    tooltip: { trigger: "axis", backgroundColor: "#0F1A2E", borderColor: "#22304A", textStyle: { color: C.ink }, valueFormatter: v => "₹" + fmt(v) + " Cr" },
+    series: [{ type: "line", data: cm.map(m => m.bank), color: C.blue, symbolSize: 6, areaStyle: { color: "rgba(78,168,222,.28)" },
+      label: { show: true, color: C.body, fontSize: 10, formatter: p => fmt(p.value, 1) } }],
+  });
+  chart("c-cfo", {
+    xAxis: axis({ type: "category", data: lab }), yAxis: axis({ type: "value" }),
+    tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, backgroundColor: "#0F1A2E", borderColor: "#22304A", textStyle: { color: C.ink }, valueFormatter: v => sgn(v) + " Cr" },
+    series: [{ type: "bar", data: cm.map(m => ({ value: m.cfo, itemStyle: { color: m.cfo < 0 ? C.red : C.teal, borderRadius: 3 } })),
+      label: { show: true, position: "outside", color: C.body, fontSize: 10, formatter: p => sgn(p.value, 1) } }],
+  });
+}
+
+// ---------------------------------------------------------- journal testing
+function renderJournals() {
+  const j = cur().jt_cards;
+  $("jt-kpis").innerHTML = [
+    kpi("Manual journals", j.manual.toLocaleString("en-IN")), kpi("Flagged journals", j.flagged),
+    kpi("% of manual flagged", pct(j.flagged_manual_pct)), kpi("Flagged value (₹ lakh)", fmt(j.flagged_value, 1)),
+    kpi("Duplicate payments at risk (₹ lakh)", fmt(j.duplicate_exposure, 1), "One payment of each pair"),
+  ].join("");
+  const tests = [...cur().tests].sort((a, b) => a.count - b.count);
+  chart("c-tests", {
+    grid: { left: innerWidth < 700 ? 150 : 222, right: 30, top: 8, bottom: 8, containLabel: false },
+    yAxis: axis({ type: "category", data: tests.map(t => D.test_labels[t.code]), axisLabel: { color: C.body, fontSize: 11, width: innerWidth < 700 ? 140 : 210, overflow: "truncate" } }),
+    xAxis: axis({ type: "value", splitLine: { show: false }, axisLabel: { show: false } }),
+    tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, backgroundColor: "#0F1A2E", borderColor: "#22304A", textStyle: { color: C.ink } },
+    series: [{ type: "bar", data: tests.map(t => ({ value: t.count, itemStyle: { color: !testFilter || testFilter === t.code ? C.red : C.py, borderRadius: [0, 3, 3, 0] } })),
+      label: { show: true, position: "right", color: C.body }, cursor: "pointer" }],
+  });
+  charts["c-tests"].off("click");
+  charts["c-tests"].on("click", p => { const code = tests[p.dataIndex].code; testFilter = testFilter === code ? null : code; render(); });
+  let rows = cur().journals.filter(r => !testFilter || r.codes.includes(testFilter));
+  const preps = {}; rows.forEach(r => preps[r.prepared_name || "—"] = (preps[r.prepared_name || "—"] || 0) + 1);
+  rows = rows.filter(r => !prepFilter || (r.prepared_name || "—") === prepFilter);
+  const pe = Object.entries(preps).sort((a, b) => a[1] - b[1]);
+  chart("c-prep", {
+    grid: { left: 8, right: 30, top: 8, bottom: 8, containLabel: true },
+    yAxis: axis({ type: "category", data: pe.map(x => x[0]), axisLabel: { color: C.body } }),
+    xAxis: axis({ type: "value", splitLine: { show: false }, axisLabel: { show: false } }),
+    tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, backgroundColor: "#0F1A2E", borderColor: "#22304A", textStyle: { color: C.ink } },
+    series: [{ type: "bar", data: pe.map(x => ({ value: x[1], itemStyle: { color: !prepFilter || prepFilter === x[0] ? C.blue : C.py, borderRadius: [0, 3, 3, 0] } })),
+      label: { show: true, position: "right", color: C.body } }],
+  });
+  charts["c-prep"].off("click");
+  charts["c-prep"].on("click", p => { const n = pe[p.dataIndex][0]; prepFilter = prepFilter === n ? null : n; render(); });
+  const chips = [testFilter && D.test_labels[testFilter], prepFilter && "Prepared by " + prepFilter].filter(Boolean);
+  $("chip").innerHTML = chips.length ? `<span class="chip">${chips.join(" · ")} <button title="Clear filter" onclick="testFilter=null;prepFilter=null;render()">✕</button></span>` : "";
+  $("t-journals").innerHTML = `<table><tr><th>Journal</th><th>Posted</th><th>Description</th><th class="r">Amount ₹</th><th>Prepared</th><th>Approved</th><th>Why it was flagged</th></tr>
+    ${rows.map(r => `<tr class="click" onclick="openJournal('${r.id}')"><td>${r.id}</td><td style="white-space:nowrap">${r.posted}</td><td>${r.desc || "<i>(blank)</i>"}</td>
+      <td class="r">${inr(r.amount)}</td><td>${r.prepared_name}</td><td>${r.approved_name || "–"}</td><td>${r.codes.map(c => D.test_labels[c]).join("; ")}</td></tr>`).join("")}</table>`;
+}
+
+// ------------------------------------------------------------ journal detail
+function openJournal(id) { journal = id; go("detail"); }
+function renderDetail() {
+  const list = cur().journals;
+  if (!journal || !list.some(r => r.id === journal)) journal = list[0]?.id;
+  $("pick").innerHTML = list.map(r => `<option value="${r.id}" ${r.id === journal ? "selected" : ""}>${r.id} · ${r.posted} · ${(r.desc || "(blank)").slice(0, 60)}</option>`).join("");
+  $("pick").onchange = e => { journal = e.target.value; render(); };
+  const d = D.detail[journal];
+  const dr = d.lines.reduce((a, l) => a + l.dr, 0), crd = d.lines.reduce((a, l) => a + l.cr, 0);
+  $("jd-kpis").innerHTML = [
+    `<div class="card kpi" style="grid-column:span 2"><h3>Journal</h3><div class="v" style="font-size:20px">${journal} · ${d.posted}</div><div class="n">${d.desc || "(blank description)"}</div></div>`,
+    kpi("Debits (₹ lakh)", fmt(dr / 1e5)), kpi("Credits (₹ lakh)", fmt(crd / 1e5)),
+    kpi("Difference (must be 0)", fmt(dr - crd), "Double-entry check", Math.abs(dr - crd) < 0.005 ? "good" : "bad"),
+  ].join("");
+  $("t-who").innerHTML = `<table><tr><th>Source</th><th>Entered</th><th>Prepared by</th><th>Approved by</th><th class="r">Amount ₹</th><th>Why it was flagged</th></tr>
+    <tr><td>${d.source}</td><td>${d.entered}</td><td>${d.prepared}</td><td>${d.approved}</td><td class="r">${inr(d.amount)}</td><td class="bad">${d.codes.map(c => D.test_labels[c]).join("; ")}</td></tr></table>`;
+  $("t-lines").innerHTML = `<table><tr><th>Line</th><th>Account</th><th>Account name</th><th>Cost centre</th><th class="r">Debit ₹</th><th class="r">Credit ₹</th></tr>
+    ${d.lines.map(l => `<tr><td>${l.no}</td><td>${l.acc}</td><td>${l.name}</td><td>${l.cc}</td><td class="r">${inr(l.dr)}</td><td class="r">${inr(l.cr)}</td></tr>`).join("")}
+    <tr class="tot"><td colspan="4">Total</td><td class="r">${inr(dr)}</td><td class="r">${inr(crd)}</td></tr></table>`;
+}
+
+// ------------------------------------------------------------------- shell
+const RENDER = { performance: renderPerformance, variance: renderVariance, balance: renderBalance, cash: renderCash, journals: renderJournals, detail: renderDetail };
+function render() {
+  document.querySelectorAll("section").forEach(s => s.classList.toggle("on", s.id === PAGE));
+  document.querySelectorAll("nav a").forEach(a => a.classList.toggle("on", a.dataset.p === PAGE));
+  document.querySelectorAll(".fy button").forEach(b => b.classList.toggle("on", b.dataset.y === FY));
+  RENDER[PAGE]();
+  Object.values(charts).forEach(c => c.resize());
+}
+function go(p) { location.hash = p; }
+window.addEventListener("hashchange", () => { PAGE = PAGES.some(x => x[0] === location.hash.slice(1)) ? location.hash.slice(1) : "performance"; render(); window.scrollTo(0, 0); });
+window.addEventListener("resize", () => Object.values(charts).forEach(c => c.resize()));
+$("nav").innerHTML = PAGES.map(([id, n]) => `<a href="#${id}" data-p="${id}">${n}</a>`).join("");
+$("fy").innerHTML = D.years.map(y => `<button data-y="${y}">${y.replace("FY20", "FY ")}</button>`).join("");
+$("fy").querySelectorAll("button").forEach(b => b.onclick = () => { FY = b.dataset.y; testFilter = prepFilter = null; render(); });
+PAGE = PAGES.some(x => x[0] === location.hash.slice(1)) ? location.hash.slice(1) : "performance";
+render();
+</script>
+</body>
+</html>
