@@ -1,0 +1,181 @@
+table ARInvoice
+	lineageTag: cdfd133d-474a-4968-b97d-b47b189e1dcf
+
+	column invoice_no
+		dataType: string
+		lineageTag: d2c22bac-d914-41ac-8d87-3efcc43e7560
+		summarizeBy: none
+		sourceColumn: invoice_no
+
+		annotation SummarizationSetBy = Automatic
+
+	column journal_id
+		dataType: string
+		lineageTag: db7a3a95-8ad5-4d3d-a6df-461f940cb68f
+		summarizeBy: none
+		sourceColumn: journal_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_id
+		dataType: string
+		lineageTag: 0e94845b-1367-4b95-92be-b806acb9f385
+		summarizeBy: none
+		sourceColumn: customer_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column invoice_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 35737ade-f7c9-4112-9547-020c6c296f65
+		summarizeBy: none
+		sourceColumn: invoice_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column due_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: a0e51e94-e872-4ebe-b89c-85eeb4ea5884
+		summarizeBy: none
+		sourceColumn: due_date
+
+		variation Variation
+			isDefault
+			relationship: 1bd73df1-ccd0-4f7a-96cc-9515f1a66555
+			defaultHierarchy: LocalDateTable_9a9de497-13cd-4512-a0ed-e29fb7a90f18.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column product_line
+		dataType: string
+		lineageTag: 2436ac4e-6020-4809-92bf-091916557941
+		summarizeBy: none
+		sourceColumn: product_line
+
+		annotation SummarizationSetBy = Automatic
+
+	column net_amount
+		dataType: int64
+		formatString: 0
+		lineageTag: 8bace171-055c-4bfe-9254-b64c3ae6328c
+		summarizeBy: sum
+		sourceColumn: net_amount
+
+		annotation SummarizationSetBy = Automatic
+
+	column gst_amount
+		dataType: double
+		lineageTag: e68d106c-b91d-4b67-80b0-193d7a1c301a
+		summarizeBy: sum
+		sourceColumn: gst_amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column gross_amount
+		dataType: double
+		lineageTag: e0e95be8-c6fc-4e51-9a06-11e14dc8c26c
+		summarizeBy: sum
+		sourceColumn: gross_amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column paid_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: eed1c95a-9acc-4148-84a6-ea2acc7a5bb3
+		summarizeBy: none
+		sourceColumn: paid_date
+
+		variation Variation
+			isDefault
+			relationship: 6582e62b-e0a2-4838-8072-403e7a2fa898
+			defaultHierarchy: LocalDateTable_978c136c-8456-439b-af61-900d9742ce4e.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column status
+		dataType: string
+		lineageTag: 473559f6-abee-42b1-9490-8a2a3f28fbf0
+		summarizeBy: none
+		sourceColumn: status
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Days past due date at 31 Mar 2026 for open invoices; blank for paid ones.
+	column days_overdue = IF ( ARInvoice[status] = "Open", INT ( DATE ( 2026, 3, 31 ) - ARInvoice[due_date] ) )
+		dataType: int64
+		formatString: 0
+		lineageTag: 81013001-05ee-49d1-ba68-024dde6afa1d
+		summarizeBy: none
+
+	/// Ageing bucket at 31 Mar 2026 (open invoices only).
+	column ageing_bucket =
+			VAR d = ARInvoice[days_overdue]
+			RETURN
+			    SWITCH (
+			        TRUE (),
+			        ISBLANK ( d ), BLANK (),
+			        d <= 0, "Not due",
+			        d <= 30, "1-30",
+			        d <= 60, "31-60",
+			        d <= 90, "61-90",
+			        d <= 180, "91-180",
+			        "Over 180"
+			    )
+		dataType: string
+		lineageTag: a7114b42-5784-4906-9dfd-a7d3c1a13fb7
+		summarizeBy: none
+		sortByColumn: ageing_sort
+
+	column ageing_sort =
+			VAR d = ARInvoice[days_overdue]
+			RETURN
+			    SWITCH (
+			        TRUE (),
+			        ISBLANK ( d ), BLANK (),
+			        d <= 0, 1,
+			        d <= 30, 2,
+			        d <= 60, 3,
+			        d <= 90, 4,
+			        d <= 180, 5,
+			        6
+			    )
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: b8fb3b22-7509-4bc9-ba93-d6702e012f4d
+		summarizeBy: none
+
+	/// Days from invoice to payment for paid invoices.
+	column days_to_pay = IF ( NOT ISBLANK ( ARInvoice[paid_date] ), INT ( ARInvoice[paid_date] - ARInvoice[invoice_date] ) )
+		dataType: int64
+		formatString: 0
+		lineageTag: f3e90e64-7ac3-406f-8a97-5ac620ca0834
+		summarizeBy: none
+
+	partition ARInvoice = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\Sammu\Documents\finance-gl-analytics\data\ar_invoices.csv"),[Delimiter=",", Columns=11, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"invoice_no", type text}, {"journal_id", type text}, {"customer_id", type text}, {"invoice_date", type date}, {"due_date", type date}, {"product_line", type text}, {"net_amount", Int64.Type}, {"gst_amount", type number}, {"gross_amount", type number}, {"paid_date", type date}, {"status", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,236 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "b934aec0547ea4ac94a0",
+  "position": {
+    "x": 732,
+    "y": 249,
+    "z": 900,
+    "height": 815,
+    "width": 1164,
+    "tabOrder": 900
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Journal"
+                    }
+                  },
+                  "Property": "journal_id"
+                }
+              },
+              "queryRef": "Journal.journal_id",
+              "nativeQueryRef": "Journal",
+              "displayName": "Journal"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Journal"
+                    }
+                  },
+                  "Property": "posting_date"
+                }
+              },
+              "queryRef": "Journal.posting_date",
+              "nativeQueryRef": "Posted",
+              "displayName": "Posted"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Journal"
+                    }
+                  },
+                  "Property": "description"
+                }
+              },
+              "queryRef": "Journal.description",
+              "nativeQueryRef": "Description",
+              "displayName": "Description"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Journal"
+                    }
+                  },
+                  "Property": "journal_amount"
+                }
+              },
+              "queryRef": "Journal.journal_amount",
+              "nativeQueryRef": "Amount ₹",
+              "displayName": "Amount ₹"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Journal"
+                    }
+                  },
+                  "Property": "prepared_by"
+                }
+              },
+              "queryRef": "Journal.prepared_by",
+              "nativeQueryRef": "Prepared",
+              "displayName": "Prepared"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Journal"
+                    }
+                  },
+                  "Property": "approved_by"
+                }
+              },
+              "queryRef": "Journal.approved_by",
+              "nativeQueryRef": "Approved",
+              "displayName": "Approved"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Measures (2)"
+                    }
+                  },
+                  "Property": "Tests Failed"
+                }
+              },
+              "queryRef": "Measures (2).Tests Failed",
+              "nativeQueryRef": "Why it was flagged",
+              "displayName": "Why it was flagged"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Journal"
+                  }
+                },
+                "Property": "journal_amount"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "objects": {
+      "values": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "14D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "columnHeaders": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "14D"
+                }
+              }
+            },
+            "bold": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "total": [
+        {
+          "properties": {
+            "totals": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Flagged journals to review (largest first)'"
+                }
+              }
+            },
+            "titleWrap": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

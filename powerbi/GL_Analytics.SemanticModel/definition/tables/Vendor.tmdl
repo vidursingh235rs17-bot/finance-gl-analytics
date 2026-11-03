@@ -1,0 +1,42 @@
+table Vendor
+	lineageTag: 9067616c-39ff-41ad-98a7-a596150e89fd
+
+	column vendor_id
+		dataType: string
+		lineageTag: c7bf904c-edec-4b60-8576-823c11962645
+		summarizeBy: none
+		sourceColumn: vendor_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column vendor_name
+		dataType: string
+		lineageTag: da732fc4-0ebd-4a57-81c3-9162d6c8b87f
+		summarizeBy: none
+		sourceColumn: vendor_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column vendor_category
+		dataType: string
+		lineageTag: 962e8d88-e8f8-417f-8324-74e8a7374f20
+		summarizeBy: none
+		sourceColumn: vendor_category
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Vendor = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\Sammu\Documents\finance-gl-analytics\data\dim_vendor.csv"),[Delimiter=",", Columns=3, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}, {"Column2", type text}, {"Column3", type text}}),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Changed Type", [PromoteAllScalars=true]),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers",{{"vendor_id", type text}, {"vendor_name", type text}, {"vendor_category", type text}})
+				in
+				    #"Changed Type1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

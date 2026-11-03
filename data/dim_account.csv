@@ -1,0 +1,37 @@
+account_id,account_name,account_class,account_subclass,statement,class_sort,product_line
+1000,Bank - Current Account,Assets,Cash & Bank,Balance Sheet,7,Not applicable
+1100,Trade Receivables,Assets,Trade Receivables,Balance Sheet,7,Not applicable
+1150,Unbilled Revenue,Assets,Other Current Assets,Balance Sheet,7,Not applicable
+1200,Inventory,Assets,Inventory,Balance Sheet,7,Not applicable
+1300,GST Input Credit,Assets,Other Current Assets,Balance Sheet,7,Not applicable
+1400,Prepaid Expenses,Assets,Other Current Assets,Balance Sheet,7,Not applicable
+1500,"Property, Plant & Equipment",Assets,Fixed Assets,Balance Sheet,7,Not applicable
+1510,Accumulated Depreciation,Assets,Fixed Assets,Balance Sheet,7,Not applicable
+2000,Trade Payables,Liabilities,Trade Payables,Balance Sheet,8,Not applicable
+2100,GST Output Payable,Liabilities,Statutory Dues,Balance Sheet,8,Not applicable
+2200,Accrued Expenses,Liabilities,Other Current Liabilities,Balance Sheet,8,Not applicable
+2300,Provision for Income Tax,Liabilities,Provisions,Balance Sheet,8,Not applicable
+2400,Working Capital Loan,Liabilities,Borrowings,Balance Sheet,8,Not applicable
+2500,Term Loan,Liabilities,Borrowings,Balance Sheet,8,Not applicable
+3000,Share Capital,Equity,Share Capital,Balance Sheet,9,Not applicable
+3100,Retained Earnings,Equity,Reserves,Balance Sheet,9,Not applicable
+4000,Revenue - Fasteners,Revenue,Product Revenue,Profit & Loss,1,Fasteners
+4010,Revenue - Bearings,Revenue,Product Revenue,Profit & Loss,1,Bearings
+4020,Revenue - Service & AMC,Revenue,Service Revenue,Profit & Loss,1,Service & AMC
+5000,COGS - Fasteners,COGS,Cost of Goods Sold,Profit & Loss,2,Fasteners
+5010,COGS - Bearings,COGS,Cost of Goods Sold,Profit & Loss,2,Bearings
+5020,COGS - Service & AMC,COGS,Cost of Services,Profit & Loss,2,Service & AMC
+6000,Salaries & Wages,Operating Expenses,Employee Cost,Profit & Loss,3,Not applicable
+6100,Rent,Operating Expenses,Premises,Profit & Loss,3,Not applicable
+6110,Utilities,Operating Expenses,Premises,Profit & Loss,3,Not applicable
+6200,Freight Outward,Operating Expenses,Selling & Distribution,Profit & Loss,3,Not applicable
+6300,Marketing & Promotion,Operating Expenses,Selling & Distribution,Profit & Loss,3,Not applicable
+6400,IT & Software,Operating Expenses,Administration,Profit & Loss,3,Not applicable
+6500,Professional Fees,Operating Expenses,Administration,Profit & Loss,3,Not applicable
+6600,Travel & Conveyance,Operating Expenses,Administration,Profit & Loss,3,Not applicable
+6700,Repairs & Maintenance,Operating Expenses,Premises,Profit & Loss,3,Not applicable
+6800,Insurance,Operating Expenses,Administration,Profit & Loss,3,Not applicable
+6900,Office & General Expenses,Operating Expenses,Administration,Profit & Loss,3,Not applicable
+7000,Depreciation,Depreciation,Depreciation,Profit & Loss,4,Not applicable
+7100,Finance Costs,Finance Costs,Finance Costs,Profit & Loss,5,Not applicable
+8000,Income Tax Expense,Tax,Income Tax,Profit & Loss,6,Not applicable

@@ -1,0 +1,893 @@
+table 'Measures (2)'
+	lineageTag: 797335ea-2409-44e1-8a02-5b1895ab7886
+
+	measure 'GL Amount' = SUM ( GL[amount] )
+		lineageTag: 30253601-53cf-4d23-a7f3-ece0c12d494b
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Revenue = ```
+			- CALCULATE ( [GL Amount], Account[account_class] = "Revenue" )
+			
+			```
+		formatString: 0
+		lineageTag: 62e94f47-7f02-4cae-8c32-f9582ba081d0
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	measure COGS = ```
+			CALCULATE ( [GL Amount], Account[account_class] = "COGS" )
+			
+			```
+		lineageTag: eb392785-76e0-4b46-a5b8-19f0c4c05e59
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Gross Profit' = ```
+			[Revenue] - [COGS]
+			
+			```
+		lineageTag: 81bd13b2-4d91-4ebb-98e2-e55cbcf3dcd0
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Opex = CALCULATE ( [GL Amount], Account[account_class] = "Operating Expenses" )
+		lineageTag: 6b2f4129-e2ee-4f81-852e-bf64380af32d
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure EBITDA = ```
+			[Gross Profit] - [Opex]
+			
+			```
+		lineageTag: f7020f5e-5158-4f3e-8c0f-f80a23f89485
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Depreciation = ```
+			CALCULATE ( [GL Amount], Account[account_class] = "Depreciation" )
+			
+			```
+		lineageTag: 6a6ffec9-5564-4875-9016-8629f80ade7e
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure EBIT = ```
+			[EBITDA] - [Depreciation]
+			
+			```
+		lineageTag: 00bbf59c-5a61-45bd-b02a-b01d36305056
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Finance Costs' = ```
+			CALCULATE ( [GL Amount], Account[account_class] = "Finance Costs" )
+			
+			```
+		lineageTag: b763260e-64e6-4c63-ab34-d3c5976a9582
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure PBT = ```
+			[EBIT] - [Finance Costs]
+			
+			```
+		lineageTag: 8f550058-a1c3-4bbe-bf46-d00ba9b32df0
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Tax = ```
+			CALCULATE ( [GL Amount], Account[account_class] = "Tax" )
+			
+			```
+		lineageTag: 84b11991-c3e0-46b7-9bb7-3c30b72b73d5
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure PAT = ```
+			[PBT] - [Tax]
+			
+			```
+		lineageTag: 9345f3d7-14c6-4500-83f9-cc27053e3763
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Budget Amount' = ```
+			SUM ( Budget[budget_amount] )
+			
+			```
+		formatString: 0
+		lineageTag: eaa9e0bd-8db7-4f56-9af4-5f5a2517019f
+
+	measure 'Budget COGS' = ```
+			CALCULATE ( [Budget Amount], Account[account_class] = "COGS" )
+			
+			```
+		formatString: 0
+		lineageTag: 081b7958-63f4-4a15-8545-2b206384f3c6
+
+	measure 'Budget EBITDA' = ```
+			[Budget Revenue] - [Budget COGS] - [Budget Opex]
+			
+			```
+		lineageTag: 373ef12d-d554-4dd0-9dbe-395e68302283
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Budget Opex' = ```
+			CALCULATE ( [Budget Amount], Account[account_class] = "Operating Expenses" )
+			
+			```
+		formatString: 0
+		lineageTag: 63407afa-eaf3-4576-9a4a-962cfafa7729
+
+	measure 'Budget Revenue' = ```
+			CALCULATE ( [Budget Amount], Account[account_class] = "Revenue" )
+			
+			```
+		formatString: 0
+		lineageTag: 544fe8b9-4b90-45b4-aa16-f99dbec857e7
+
+	measure 'EBITDA Margin %' = ```
+			DIVIDE ( [EBITDA], [Revenue] )
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 4388a97c-a4f6-4207-9630-d360e8acd70f
+
+	measure 'EBITDA Var' = ```
+			[EBITDA] - [Budget EBITDA]
+			
+			```
+		lineageTag: a85e87dc-ec73-471e-85db-1556f310e655
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Gross Margin %' = ```
+			DIVIDE ( [Gross Profit], [Revenue] )
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 17e4d426-2a4d-4be3-bf01-78ba3c1533f5
+
+	measure 'PAT Margin %' = ```
+			DIVIDE ( [PAT], [Revenue] )
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 2e32c9ae-f00a-46ff-9713-240a7c5810b7
+
+	measure 'Revenue Var' = ```
+			[Revenue] - [Budget Revenue]
+			
+			```
+		lineageTag: f944daab-d82a-4a96-b124-cab1398aa51a
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Revenue Var %' = ```
+			DIVIDE ( [Revenue Var], [Budget Revenue] )
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 78ccd817-5ebf-4851-9f5e-4430942c9a5f
+
+	measure 'Gross Margin % PY' = ```
+			CALCULATE ( [Gross Margin %], SAMEPERIODLASTYEAR ( 'Date'[date] ) )
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 88453776-9f90-4ea4-99f0-91053c7f32a0
+
+	measure 'EBITDA (Cr)' = DIVIDE ( [EBITDA], 10000000 )
+		formatString: 0.00
+		lineageTag: 19161fde-f35f-4e0f-ab93-a396736b46ef
+
+	measure 'PAT (Cr)' = DIVIDE ( [PAT], 10000000 )
+		formatString: 0.00
+		lineageTag: a3537501-e370-4a9a-b60d-4953bc40d168
+
+	measure 'Revenue (Cr)' = DIVIDE ( [Revenue], 10000000 )
+		formatString: 0.00
+		lineageTag: 7952f828-1b05-4fbb-be02-247baeee9626
+
+	measure 'EBITDA Var (Cr)' = ```
+			DIVIDE ( [EBITDA Var], 10000000 )
+			
+			```
+		formatString: 0.00
+		lineageTag: ecdbb87b-68fd-4355-9e86-fb5fb971fe8e
+
+	measure 'Budget Revenue (Cr)' = ```
+			DIVIDE ( [Budget Revenue], 10000000 )
+			
+			```
+		lineageTag: ac584292-bba0-47be-957f-0b51ab92b927
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Actual (P&L)' = ```
+			
+			CALCULATE (
+			    SUMX ( Account, [GL Amount] * IF ( Account[account_class] = "Revenue", -1, 1 ) ),
+			    KEEPFILTERS ( Account[statement] = "Profit & Loss" )
+			)
+			
+			```
+		lineageTag: 8c813d46-232d-44f3-98bc-45246ed19ab3
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Budget (P&L)' = ```
+			
+			CALCULATE ( [Budget Amount], KEEPFILTERS ( Account[statement] = "Profit & Loss" ) )
+			
+			```
+		formatString: 0
+		lineageTag: a642cbc3-849e-463e-9f22-cd93a89aff38
+
+	measure 'Variance Fav/(Adv)' = ```
+			
+			CALCULATE (
+			    SUMX (
+			        Account,
+			        VAR ActualAmt = [GL Amount]
+			        VAR BudgetAmt = [Budget Amount]
+			        RETURN
+			            IF ( Account[account_class] = "Revenue", - ActualAmt - BudgetAmt, BudgetAmt - ActualAmt )
+			    ),
+			    KEEPFILTERS ( Account[statement] = "Profit & Loss" )
+			)
+			
+			```
+		lineageTag: 2112d49a-2a8d-42fb-903a-968c5ed18372
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Variance %' = ```
+			
+			DIVIDE ( [Variance Fav/(Adv)], [Budget (P&L)] )
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 857bd838-5e14-4a73-a201-1267f840e093
+
+	measure 'Actual (L)' = ```
+			DIVIDE ( [Actual (P&L)], 100000 )
+			
+			```
+		formatString: 0.0
+		lineageTag: fd65b6a5-8c3f-4871-921d-b015e7e82f64
+
+	measure 'Budget (L)' = ```
+			DIVIDE ( [Budget (P&L)], 100000 )
+			
+			```
+		formatString: 0.0
+		lineageTag: 73d6e5c7-b1ff-4e69-a080-078dbd0aa387
+
+	measure 'Variance (L)' = ```
+			DIVIDE ( [Variance Fav/(Adv)], 100000 )
+			
+			```
+		formatString: 0.0
+		lineageTag: 197a63e8-a749-490b-8a0b-09ee95041a98
+
+	measure 'Variance Colour' = ```
+			
+			IF ( [Variance Fav/(Adv)] < 0, "#C8553D", "#2A9D8F" )
+			
+			```
+		lineageTag: ec9c2610-a7a1-4003-8907-4ccbf7bc44ab
+
+	/// Closing balance at the last date in the current filter (debit positive).
+	measure Balance =
+			VAR MaxDate = MAX ( 'Date'[date] )
+			RETURN
+			    CALCULATE ( [GL Amount], FILTER ( ALL ( 'Date' ), 'Date'[date] <= MaxDate ) )
+		formatString: #,0
+		displayFolder: Balance Sheet
+		lineageTag: 79b5dd6c-36d7-42c3-b880-6bba45dee8ef
+
+	/// Balance sheet matrix value: assets positive, liabilities and equity positive.
+	measure 'Balance (Display)' =
+			CALCULATE (
+			    SUMX ( Account, [Balance] * IF ( Account[account_class] = "Assets", 1, -1 ) ),
+			    KEEPFILTERS ( Account[statement] = "Balance Sheet" )
+			)
+		formatString: #,0
+		displayFolder: Balance Sheet
+		lineageTag: 991c8ffb-9067-4a38-bb3d-6aab26749b25
+
+	measure 'Total Assets' = CALCULATE ( [Balance], Account[account_class] = "Assets" )
+		formatString: #,0
+		displayFolder: Balance Sheet
+		lineageTag: 0545807f-e740-4529-877d-9f1224ecb6b4
+
+	measure 'Total Liabilities' = - CALCULATE ( [Balance], Account[account_class] = "Liabilities" )
+		formatString: #,0
+		displayFolder: Balance Sheet
+		lineageTag: d3e7767f-1d36-4d29-bf26-6281a0469afc
+
+	measure 'Booked Equity' = - CALCULATE ( [Balance], Account[account_class] = "Equity" )
+		formatString: #,0
+		displayFolder: Balance Sheet
+		lineageTag: 15cd4051-fe27-496d-878c-6c219d55ef32
+
+	/// Profit since 1 Apr 2024; the ledger has no year-end closing entry to retained earnings.
+	measure 'Cumulative Profit' = - CALCULATE ( [Balance], Account[statement] = "Profit & Loss" )
+		formatString: #,0
+		displayFolder: Balance Sheet
+		lineageTag: df0c57b5-6e44-4e0b-ab01-a0965e5f3081
+
+	/// Control: must be zero.
+	measure 'Balance Sheet Check' = ROUND ( [Total Assets] - [Total Liabilities] - [Booked Equity] - [Cumulative Profit], 0 )
+		formatString: #,0
+		displayFolder: Balance Sheet
+		lineageTag: fdf90a91-917a-4d42-a725-e5e35b074720
+
+	measure 'Bank Balance' = CALCULATE ( [Balance], Account[account_id] = 1000 )
+		formatString: #,0
+		displayFolder: Balance Sheet
+		lineageTag: 06eac934-4a9c-4e92-b949-78fd3eb3ea7d
+
+	measure 'AR Balance' = CALCULATE ( [Balance], Account[account_id] = 1100 )
+		formatString: #,0
+		displayFolder: Balance Sheet
+		lineageTag: 6c127d57-5b1a-4cad-897a-4ea89a25937b
+
+	measure 'Inventory Balance' = CALCULATE ( [Balance], Account[account_id] = 1200 )
+		formatString: #,0
+		displayFolder: Balance Sheet
+		lineageTag: e27fcedc-bb11-4d8e-8bf1-baad0e206e43
+
+	measure 'AP Balance' = - CALCULATE ( [Balance], Account[account_id] = 2000 )
+		formatString: #,0
+		displayFolder: Balance Sheet
+		lineageTag: fa15c8e3-3a09-4ea6-b4dc-a4f58a2d0bf1
+
+	measure Borrowings = - CALCULATE ( [Balance], Account[account_subclass] = "Borrowings" )
+		formatString: #,0
+		displayFolder: Balance Sheet
+		lineageTag: a8e98600-9a95-473b-abe4-d38fbe92d15c
+
+	measure 'Net Working Capital' = [AR Balance] + [Inventory Balance] - [AP Balance]
+		formatString: #,0
+		displayFolder: Balance Sheet
+		lineageTag: 50b37bf9-b893-4fce-a7bd-cc936be86492
+
+	measure 'Gross Invoiced' = SUM ( ARInvoice[gross_amount] )
+		formatString: #,0
+		displayFolder: Working Capital
+		lineageTag: 67b46679-490e-4bc2-85b5-22c42f9bab12
+
+	/// Days sales outstanding: receivables vs last 3 months of invoicing (both incl. GST). Read at month ends from Jun 2024.
+	measure DSO =
+			VAR Period = DATESINPERIOD ( 'Date'[date], MAX ( 'Date'[date] ), -3, MONTH )
+			RETURN
+			    DIVIDE ( [AR Balance], CALCULATE ( [Gross Invoiced], Period ) ) * COUNTROWS ( Period )
+		formatString: 0
+		displayFolder: Working Capital
+		lineageTag: 4c161ae0-88a8-4b9c-bf43-0425f5bec1b6
+
+	/// Days inventory outstanding vs last 3 months of COGS.
+	measure DIO =
+			VAR Period = DATESINPERIOD ( 'Date'[date], MAX ( 'Date'[date] ), -3, MONTH )
+			RETURN
+			    DIVIDE ( [Inventory Balance], CALCULATE ( [COGS], Period ) ) * COUNTROWS ( Period )
+		formatString: 0
+		displayFolder: Working Capital
+		lineageTag: 2f2bf112-35ed-4693-b557-e086c2746ff6
+
+	/// Indicator only: payables include GST and non-stock purchases.
+	measure DPO =
+			VAR Period = DATESINPERIOD ( 'Date'[date], MAX ( 'Date'[date] ), -3, MONTH )
+			RETURN
+			    DIVIDE ( [AP Balance], CALCULATE ( [COGS], Period ) ) * COUNTROWS ( Period )
+		formatString: 0
+		displayFolder: Working Capital
+		lineageTag: eef7ece2-0da7-46e2-9c5e-a2f8b377e39d
+
+	measure 'Cash Conversion Cycle' = [DSO] + [DIO] - [DPO]
+		formatString: 0
+		displayFolder: Working Capital
+		lineageTag: 2d60d012-a4a5-490e-b136-2b389714a63c
+
+	/// Open invoices at 31 Mar 2026; ignores the date slicer.
+	measure 'Open AR' = CALCULATE ( SUM ( ARInvoice[gross_amount] ), ARInvoice[status] = "Open", ALL ( 'Date' ) )
+		formatString: #,0
+		displayFolder: Receivables
+		lineageTag: c4c0a560-f554-41d9-9b4d-70966b3fa25b
+
+	measure 'Open Invoices' = CALCULATE ( COUNTROWS ( ARInvoice ), ARInvoice[status] = "Open", ALL ( 'Date' ) )
+		formatString: #,0
+		displayFolder: Receivables
+		lineageTag: bdec630c-3211-4d54-80e4-c076e85983e5
+
+	measure 'Overdue AR' = CALCULATE ( [Open AR], ARInvoice[days_overdue] > 0 )
+		formatString: #,0
+		displayFolder: Receivables
+		lineageTag: 9eabbca2-72cc-438a-ba5a-ccdf2131462b
+
+	measure 'Overdue AR over 90 Days' = CALCULATE ( [Open AR], ARInvoice[days_overdue] > 90 )
+		formatString: #,0
+		displayFolder: Receivables
+		lineageTag: 0ad18d3e-89bf-4a85-8357-77cbbd44e9f5
+
+	measure 'Overdue %' = DIVIDE ( [Overdue AR], [Open AR] )
+		formatString: 0.0%
+		displayFolder: Receivables
+		lineageTag: b8bb674a-5dd4-43c0-a451-ec48345c2f66
+
+	measure 'AR per GL (Closing)' = CALCULATE ( [AR Balance], ALL ( 'Date' ) )
+		formatString: #,0
+		displayFolder: Receivables
+		lineageTag: 015e110b-4730-48be-a7d2-2964272e6860
+
+	/// General ledger less sub-ledger. Anything other than zero needs explaining.
+	measure 'AR Reconciliation Difference' = [AR per GL (Closing)] - CALCULATE ( [Open AR], ALL ( ARInvoice ), ALL ( Customer ) )
+		formatString: #,0
+		displayFolder: Receivables
+		lineageTag: afe96ff6-855a-4402-b867-55c9b6f775ad
+
+	measure 'Average Days to Pay' = AVERAGE ( ARInvoice[days_to_pay] )
+		formatString: 0
+		displayFolder: Receivables
+		lineageTag: 659f09e6-ad7b-48f0-8b78-b334b6f3b60f
+
+	measure 'Bank Balance (Cr)' = DIVIDE ( [Bank Balance], 1e7 )
+		formatString: 0.00
+		displayFolder: Balance Sheet\Crore
+		lineageTag: 7b509dc0-c70e-437d-a958-9392fbfc23d2
+
+	measure 'Net Working Capital (Cr)' = DIVIDE ( [Net Working Capital], 1e7 )
+		formatString: 0.00
+		displayFolder: Balance Sheet\Crore
+		lineageTag: 4359f287-628f-48c1-8e8b-c838ae958562
+
+	measure 'Borrowings (Cr)' = DIVIDE ( [Borrowings], 1e7 )
+		formatString: 0.00
+		displayFolder: Balance Sheet\Crore
+		lineageTag: f5d575fe-6727-484e-99b1-b4abead0689f
+
+	measure 'Balance (Display Cr)' = DIVIDE ( [Balance (Display)], 1e7 )
+		formatString: 0.00
+		displayFolder: Balance Sheet\Crore
+		lineageTag: 8f273b24-d57a-4134-a08e-2bbea78794f9
+
+	measure 'Open AR (Cr)' = DIVIDE ( [Open AR], 1e7 )
+		formatString: 0.00
+		displayFolder: Receivables
+		lineageTag: d42eb621-074f-4ab0-a520-86739b490be2
+
+	measure 'Overdue AR over 90 Days (L)' = DIVIDE ( [Overdue AR over 90 Days], 1e5 )
+		formatString: 0.0
+		displayFolder: Receivables
+		lineageTag: 34bdd657-c923-4fae-86df-b9cf29565c79
+
+	/// Balance at the selected year end, by balance sheet line. Blank on the grand total, which has no meaning (assets + liabilities).
+	measure 'BS Year End (Cr)' = IF ( ISINSCOPE ( Account[account_class] ), [Balance (Display Cr)] )
+		formatString: #,0.00
+		displayFolder: Balance Sheet\Crore
+		lineageTag: 06eeaf2e-f54f-49f2-bda1-00a3e6438161
+
+	/// Same balance twelve months earlier.
+	measure 'BS Previous Year End (Cr)' =
+			VAR PrevDate = EDATE ( MAX ( 'Date'[date] ), -12 )
+			RETURN
+			    IF (
+			        ISINSCOPE ( Account[account_class] ),
+			        CALCULATE ( [Balance (Display Cr)], FILTER ( ALL ( 'Date' ), 'Date'[date] = PrevDate ) )
+			    )
+		formatString: #,0.00
+		displayFolder: Balance Sheet\Crore
+		lineageTag: dbc6ef27-4a84-4370-91c9-86ad6107a60e
+
+	measure 'BS Change (Cr)' =
+			VAR Prev = [BS Previous Year End (Cr)]
+			RETURN
+			    IF ( NOT ISBLANK ( Prev ), [BS Year End (Cr)] - Prev )
+		formatString: +#,0.00;-#,0.00;0.00
+		displayFolder: Balance Sheet\Crore
+		lineageTag: ef41d8b6-2682-4e94-9879-d46890b9c744
+
+	measure 'AR Reconciliation Difference (L)' = DIVIDE ( [AR Reconciliation Difference], 1e5 )
+		formatString: #,0.00
+		displayFolder: Receivables
+		lineageTag: 4454dd44-f440-43d0-964b-f7de602e4803
+
+	/// Invoices open at the last date in the slicer (raised on or before it, not yet paid by it), limited to the selected ageing bucket's days past due.
+	measure 'Open AR (As At)' =
+			VAR AsAt = MAX ( 'Date'[date] )
+			VAR MinDays = MIN ( 'AR Ageing Bucket'[min_days] )
+			VAR MaxDays = MAX ( 'AR Ageing Bucket'[max_days] )
+			RETURN
+			    IF (
+			        NOT ISEMPTY ( 'AR Ageing Bucket' ),
+			        CALCULATE (
+			            SUMX (
+			                FILTER (
+			                    ARInvoice,
+			                    VAR DaysPastDue = INT ( AsAt - ARInvoice[due_date] )
+			                    RETURN
+			                        ARInvoice[invoice_date] <= AsAt
+			                            && ( ISBLANK ( ARInvoice[paid_date] ) || ARInvoice[paid_date] > AsAt )
+			                            && DaysPastDue >= MinDays
+			                            && DaysPastDue <= MaxDays
+			                ),
+			                ARInvoice[gross_amount]
+			            ),
+			            REMOVEFILTERS ( 'Date' )
+			        )
+			    )
+		formatString: #,0
+		displayFolder: Receivables\As at selected date
+		lineageTag: bed26741-068d-47f0-9df5-cc09d7d68961
+
+	measure 'Open AR (As At Cr)' = DIVIDE ( [Open AR (As At)], 1e7 )
+		formatString: 0.00
+		displayFolder: Receivables\As at selected date
+		lineageTag: d3c437fc-13ca-4808-a453-495e2e5c0001
+
+	measure 'Overdue over 90 Days (As At L)' = DIVIDE ( CALCULATE ( [Open AR (As At)], KEEPFILTERS ( 'AR Ageing Bucket'[min_days] > 90 ) ), 1e5 )
+		formatString: 0.0
+		displayFolder: Receivables\As at selected date
+		lineageTag: b6c6b871-9bf4-443e-bfb1-8fc29014a622
+
+	/// General ledger less open invoices at the selected year end. Non-zero needs explaining.
+	measure 'AR Rec Difference (As At L)' = ROUND ( DIVIDE ( [AR Balance] - CALCULATE ( [Open AR (As At)], REMOVEFILTERS ( 'AR Ageing Bucket' ), REMOVEFILTERS ( Customer ) ), 1e5 ), 2 )
+		formatString: #,0.00
+		displayFolder: Receivables\As at selected date
+		lineageTag: 8bfa61fc-da34-478c-9978-8533293edd69
+
+	measure 'AR Ageing Title' = "Receivables ageing at " & FORMAT ( MAX ( 'Date'[date] ), "d mmm yyyy" ) & " (₹ crore)"
+		displayFolder: Receivables\As at selected date
+		lineageTag: 8f946b11-6fe3-4337-b2c4-d54cb5ab5d3b
+
+	measure 'Overdue Title' = "Customers more than 90 days overdue at " & FORMAT ( MAX ( 'Date'[date] ), "d mmm yyyy" ) & " (₹ lakh)"
+		displayFolder: Receivables\As at selected date
+		lineageTag: c4765a4a-a990-4b3d-afb4-c7b1ec794ba4
+
+	measure Journals = COUNTROWS ( Journal )
+		formatString: #,0
+		displayFolder: Journal Testing
+		lineageTag: 75e37514-cb38-4c31-98bb-c1d2b54dd4f9
+
+	measure 'Manual Journals' = CALCULATE ( COUNTROWS ( Journal ), Journal[source] = "Manual" )
+		formatString: #,0
+		displayFolder: Journal Testing
+		lineageTag: 90a21cc0-8b88-4459-bf2c-9ac27202b97e
+
+	measure 'Manual Journal Value' = CALCULATE ( SUM ( Journal[journal_amount] ), Journal[source] = "Manual" )
+		formatString: #,0
+		displayFolder: Journal Testing
+		lineageTag: e00208d9-d81a-41f2-82fc-edc8b3f46429
+
+	measure 'Manual % of Journals' = DIVIDE ( [Manual Journals], [Journals] )
+		formatString: 0.0%
+		displayFolder: Journal Testing
+		lineageTag: 876ee0ed-d23b-45e3-9bd0-98b2585282ad
+
+	/// Distinct journals failing at least one test. Responds to a filter on JournalFlags[test_name].
+	measure 'Flagged Journals' = DISTINCTCOUNT ( JournalFlags[journal_id] )
+		formatString: #,0
+		displayFolder: Journal Testing
+		lineageTag: 0e1f044e-48da-4278-a5ea-f47f85fd2e55
+
+	measure 'Flag Hits' = COUNTROWS ( JournalFlags )
+		formatString: #,0
+		displayFolder: Journal Testing
+		lineageTag: 02e1d100-e751-4125-865b-937f5a0c243e
+
+	/// Each journal counted once even if it fails several tests.
+	measure 'Flagged Value' = SUMX ( VALUES ( JournalFlags[journal_id] ), CALCULATE ( MAX ( JournalFlags[journal_amount] ) ) )
+		formatString: #,0
+		displayFolder: Journal Testing
+		lineageTag: f9b9f029-606d-4a6a-8dd0-f27e06c03221
+
+	measure 'Flagged Value (L)' = DIVIDE ( [Flagged Value], 1e5 )
+		formatString: #,0.0
+		displayFolder: Journal Testing
+		lineageTag: a0abd487-1a47-47fd-aa5e-36beb36dadea
+
+	measure 'Flagged Manual Journals' = CALCULATE ( [Flagged Journals], Journal[source] = "Manual" )
+		formatString: #,0
+		displayFolder: Journal Testing
+		lineageTag: 6a24d8a3-6940-4607-9b9c-f250f48c3980
+
+	measure 'Flagged % of Manual Journals' = DIVIDE ( [Flagged Manual Journals], [Manual Journals] )
+		formatString: 0.0%
+		displayFolder: Journal Testing
+		lineageTag: 3fe02342-95f0-4bfe-95c5-76f70db70672
+
+	measure 'Journals with 2+ Flags' = CALCULATE ( COUNTROWS ( Journal ), Journal[flag_count] >= 2 )
+		formatString: #,0
+		displayFolder: Journal Testing
+		lineageTag: 7d776253-c409-4aab-ad56-68268edf419e
+
+	/// One payment of each duplicate pair is the possible overpayment.
+	measure 'Duplicate Payment Exposure (L)' =
+			VAR DuplicatePairs =
+			    CALCULATE (
+			        SUM ( JournalFlags[journal_amount] ),
+			        REMOVEFILTERS ( JournalFlags[test_name], JournalFlags[check_label], JournalFlags[risk_area], JournalFlags[test_sort] ),
+			        JournalFlags[test_code] = "T11"
+			    )
+			RETURN
+			    DIVIDE ( DuplicatePairs / 2, 1e5 ) + 0
+		formatString: #,0.0
+		displayFolder: Journal Testing
+		lineageTag: 50554018-9e8e-4e9e-9fd6-354822853c15
+
+	measure 'Manual Revenue Journals Value (L)' = DIVIDE ( CALCULATE ( SUM ( JournalFlags[journal_amount] ), JournalFlags[test_code] = "T9" ), 1e5 )
+		formatString: #,0.0
+		displayFolder: Journal Testing
+		lineageTag: db1831ae-88d3-4baa-b72e-83868653b667
+
+	/// Codes of the tests a journal failed, e.g. 'T5, T8'. Blank when none, so a table with this measure lists flagged journals only.
+	measure 'Tests Failed' = CONCATENATEX ( VALUES ( JournalFlags[check_label] ), JournalFlags[check_label], "; ", CALCULATE ( MAX ( JournalFlags[test_sort] ) ), ASC )
+		displayFolder: Journal Testing
+		lineageTag: a54eec07-197e-4f00-a0af-04ca9bdac0f9
+
+	measure 'Total Debits' = SUM ( GL[debit] )
+		formatString: #,0.00
+		displayFolder: Journal Detail
+		lineageTag: 323ef737-51dc-4146-95bb-2815dc72ee3a
+
+	measure 'Total Credits' = SUM ( GL[credit] )
+		formatString: #,0.00
+		displayFolder: Journal Detail
+		lineageTag: 3cc08fff-75da-4e94-9ad4-f65981554c49
+
+	/// Double-entry check: every journal must balance to zero.
+	measure 'Debits less Credits' = ROUND ( [Total Debits] - [Total Credits], 2 )
+		formatString: #,0.00
+		displayFolder: Journal Detail
+		lineageTag: fc795397-1ee4-4cea-a67c-c223ac2f5a17
+
+	/// Shows which journal the page is drilled into, or how to get here.
+	measure 'Selected Journal' =
+			VAR JournalNo = SELECTEDVALUE ( Journal[journal_id] )
+			RETURN
+			    IF (
+			        ISBLANK ( JournalNo ),
+			        "Right-click a journal on Journal testing → Drill through → Journal detail",
+			        JournalNo & "  ·  " & FORMAT ( SELECTEDVALUE ( Journal[posting_date] ), "d mmm yyyy" ) & "  ·  " & SELECTEDVALUE ( Journal[description] )
+			    )
+		displayFolder: Journal Detail
+		lineageTag: b54c3afb-7636-4b65-b649-087633b0c856
+
+	measure 'Flag Status' = COALESCE ( [Tests Failed], "No checks failed" )
+		displayFolder: Journal Detail
+		lineageTag: 9d41a7ce-4f0b-47bd-b960-db9afbdc0a71
+
+	/// Name of the user who prepared the journal(s) in the current filter.
+	measure 'Prepared By Name' =
+			CALCULATE (
+			    CONCATENATEX ( VALUES ( 'User'[user_name] ), 'User'[user_name], ", " ),
+			    TREATAS ( VALUES ( Journal[prepared_by] ), 'User'[user_id] )
+			)
+		displayFolder: Journal Detail
+		lineageTag: b7dc2866-c08d-497b-b462-cba8210967d1
+
+	/// Name of the approver; Journal[approved_by] has no relationship to User, so it is looked up here.
+	measure 'Approved By Name' =
+			VAR Names =
+			    CALCULATE (
+			        CONCATENATEX ( VALUES ( 'User'[user_name] ), 'User'[user_name], ", " ),
+			        TREATAS ( VALUES ( Journal[approved_by] ), 'User'[user_id] )
+			    )
+			RETURN COALESCE ( Names, "No approver recorded" )
+		displayFolder: Journal Detail
+		lineageTag: b656f89c-df60-4c5c-8a5d-a3d528ada07d
+
+	measure 'Total Debits (L)' = DIVIDE ( [Total Debits], 1e5 )
+		formatString: #,0.00
+		displayFolder: Journal Detail
+		lineageTag: f6d8332c-5c9b-4973-bc27-4ea8dd8c62cb
+
+	measure 'Total Credits (L)' = DIVIDE ( [Total Credits], 1e5 )
+		formatString: #,0.00
+		displayFolder: Journal Detail
+		lineageTag: 5995a511-b04d-4c4a-b48a-0f9c018be506
+
+	/// Movement in the accounts in the current filter during the period, sign reversed so that a cash inflow is positive. Excludes the opening balance journal.
+	measure 'CF Activity' = - CALCULATE ( [GL Amount], Journal[source] <> "Opening" )
+		formatString: #,0
+		isHidden
+		displayFolder: Cash Flow
+		lineageTag: f27957e4-1fb6-4ffd-af32-a599b0dd4102
+
+	/// Indirect cash flow by line of 'Cash Flow Line'. The lines cover every account except the bank, so the total equals the movement in the bank balance.
+	measure 'Cash Flow' =
+			SUMX (
+			    VALUES ( 'Cash Flow Line'[cf_sort] ),
+			    SWITCH (
+			        'Cash Flow Line'[cf_sort],
+			        1, CALCULATE ( [CF Activity], Account[statement] = "Profit & Loss" ),
+			        2, CALCULATE ( [CF Activity], Account[account_id] = 1510 ),
+			        3, CALCULATE ( [CF Activity], Account[account_id] = 1100 ),
+			        4, CALCULATE ( [CF Activity], Account[account_id] = 1200 ),
+			        5, CALCULATE ( [CF Activity], Account[account_id] = 2000 ),
+			        6, CALCULATE ( [CF Activity], Account[account_id] IN { 1150, 1300, 1400, 2100, 2200, 2300 } ),
+			        7, CALCULATE ( [CF Activity], Account[account_id] = 1500 ),
+			        8, CALCULATE ( [CF Activity], Account[account_id] IN { 2400, 2500 } ),
+			        9, CALCULATE ( [CF Activity], Account[account_id] IN { 3000, 3100 } )
+			    )
+			)
+		formatString: #,0
+		displayFolder: Cash Flow
+		lineageTag: 9c878c90-0d28-4243-b3ef-3d2631f3af5d
+
+	measure 'Cash Flow (Cr)' = DIVIDE ( [Cash Flow], 10000000 )
+		formatString: +#,0.00;-#,0.00;0.00
+		displayFolder: Cash Flow
+		lineageTag: 94dbf5f3-330f-4553-b03e-a828c0b98d02
+
+	measure 'Cash Flow PY (Cr)' = CALCULATE ( [Cash Flow (Cr)], SAMEPERIODLASTYEAR ( 'Date'[date] ) )
+		formatString: +#,0.00;-#,0.00;0.00
+		displayFolder: Cash Flow
+		lineageTag: 015d03a6-5d75-4d66-be18-ece56cdd2721
+
+	measure 'Cash from Operations (Cr)' = CALCULATE ( [Cash Flow (Cr)], 'Cash Flow Line'[cf_section] = "Operating" )
+		formatString: +#,0.00;-#,0.00;0.00
+		displayFolder: Cash Flow
+		lineageTag: 7c37069c-1486-470c-8c24-cd2faf71f696
+
+	measure 'Cash from Investing (Cr)' = CALCULATE ( [Cash Flow (Cr)], 'Cash Flow Line'[cf_section] = "Investing" )
+		formatString: +#,0.00;-#,0.00;0.00
+		displayFolder: Cash Flow
+		lineageTag: 5aacc219-d06d-49f6-8da7-4d484e90c4d1
+
+	measure 'Cash from Financing (Cr)' = CALCULATE ( [Cash Flow (Cr)], 'Cash Flow Line'[cf_section] = "Financing" )
+		formatString: +#,0.00;-#,0.00;0.00
+		displayFolder: Cash Flow
+		lineageTag: 92cd161b-77ff-409d-8fcf-debb43e678a0
+
+	measure 'Net Cash Flow (Cr)' = CALCULATE ( [Cash Flow (Cr)], ALL ( 'Cash Flow Line' ) )
+		formatString: +#,0.00;-#,0.00;0.00
+		displayFolder: Cash Flow
+		lineageTag: 4548dfdb-38f3-476d-996e-d69e98a86b60
+
+	/// Cash from operations less capital expenditure.
+	measure 'Free Cash Flow (Cr)' = [Cash from Operations (Cr)] + [Cash from Investing (Cr)]
+		formatString: +#,0.00;-#,0.00;0.00
+		displayFolder: Cash Flow
+		lineageTag: f7d0202f-dd80-44f2-899f-e69b81a91f80
+
+	/// Bank balance at the start of the period: closing balance less the period's net cash flow.
+	measure 'Opening Cash (Cr)' = [Bank Balance (Cr)] - [Net Cash Flow (Cr)]
+		formatString: #,0.00
+		displayFolder: Cash Flow
+		lineageTag: 5adfd67e-8368-426d-9f17-8433232f218b
+
+	/// Control: net cash flow less the movement in the bank account. Must be zero.
+	measure 'Cash Flow Check' = ROUND ( CALCULATE ( [Cash Flow], ALL ( 'Cash Flow Line' ) ) + CALCULATE ( [CF Activity], Account[account_id] = 1000 ), 0 )
+		formatString: #,0
+		displayFolder: Cash Flow
+		lineageTag: 141c2648-61b2-4ba8-9559-129185f6b9a8
+
+	measure 'Cash Flow Colour' = IF ( [Cash Flow (Cr)] < 0, "#C8553D", "#2A9D8F" )
+		displayFolder: Cash Flow
+		lineageTag: 1054dbbf-5753-4dc0-8f62-1d9e0662cf9a
+
+	measure 'Operating Cash Note' = "PAT " & FORMAT ( [PAT (Cr)], "0.00" ) & " · cash conversion " & FORMAT ( DIVIDE ( [Cash from Operations (Cr)], [PAT (Cr)] ), "0%" )
+		displayFolder: Cash Flow
+		lineageTag: 476f6b03-f165-4ef7-a8e1-64e9deee37bc
+
+	measure 'Opening Cash Note' = "Bank balance at " & FORMAT ( MIN ( 'Date'[date] ), "d mmm yyyy" )
+		displayFolder: Cash Flow
+		lineageTag: 3826e06e-68f8-4b65-a3c0-2b48c36a961e
+
+	measure 'Closing Cash Note' = VAR Chg = [Net Cash Flow (Cr)] RETURN IF ( Chg < 0, "▼ ", "▲ " ) & FORMAT ( ABS ( Chg ), "0.00" ) & " Cr in the year"
+		displayFolder: Cash Flow
+		lineageTag: 640c9766-d509-4f24-a071-b6eb2c1cc9f6
+
+	measure 'Investing Note' = "Free cash flow ₹" & FORMAT ( [Free Cash Flow (Cr)], "0.00" ) & " Cr"
+		displayFolder: Cash Flow
+		lineageTag: 070dead3-d4cb-40da-a317-3f5902033017
+
+	measure 'Financing Note' = "Borrowings at year end ₹" & FORMAT ( [Borrowings (Cr)], "0.00" ) & " Cr"
+		displayFolder: Cash Flow
+		lineageTag: 6e7e925a-e722-46d8-8d50-221dcd785cec
+
+	measure 'Revenue PY' = CALCULATE ( [Revenue], SAMEPERIODLASTYEAR ( 'Date'[date] ) )
+		formatString: #,0
+		displayFolder: KPI Labels
+		lineageTag: 840cd7e8-506e-4d01-8e73-73a50b9c5672
+
+	measure 'EBITDA PY' = CALCULATE ( [EBITDA], SAMEPERIODLASTYEAR ( 'Date'[date] ) )
+		formatString: #,0
+		displayFolder: KPI Labels
+		lineageTag: d2b5f848-45f9-4e26-8c79-172085c922ab
+
+	measure 'PAT PY' = CALCULATE ( [PAT], SAMEPERIODLASTYEAR ( 'Date'[date] ) )
+		formatString: #,0
+		displayFolder: KPI Labels
+		lineageTag: 208c46f9-29ef-4120-a125-130215895031
+
+	measure 'Revenue Note' = VAR G = DIVIDE ( [Revenue] - [Revenue PY], [Revenue PY] ) RETURN IF ( ISBLANK ( [Revenue PY] ), "Budget " & FORMAT ( [Budget Revenue (Cr)], "0.00" ), IF ( G < 0, "▼ ", "▲ " ) & FORMAT ( ABS ( G ), "0.0%" ) & " vs last year · budget " & FORMAT ( [Budget Revenue (Cr)], "0.00" ) )
+		displayFolder: KPI Labels
+		lineageTag: 42765836-5bad-42f4-9276-c472d41120a1
+
+	measure 'Gross Margin Note' = VAR D = ( [Gross Margin %] - [Gross Margin % PY] ) * 100 RETURN IF ( ISBLANK ( [Gross Margin % PY] ), "Gross profit ₹" & FORMAT ( DIVIDE ( [Gross Profit], 1e7 ), "0.00" ) & " Cr", IF ( D < 0, "▼ ", "▲ " ) & FORMAT ( ABS ( D ), "0.0" ) & " pts vs last year" )
+		displayFolder: KPI Labels
+		lineageTag: 9a0e4cda-5b86-4949-8dcd-be28b3cd4284
+
+	measure 'EBITDA Note' = VAR G = DIVIDE ( [EBITDA] - [EBITDA PY], [EBITDA PY] ) RETURN IF ( ISBLANK ( [EBITDA PY] ), "Margin " & FORMAT ( [EBITDA Margin %], "0.0%" ), IF ( G < 0, "▼ ", "▲ " ) & FORMAT ( ABS ( G ), "0.0%" ) & " vs last year · margin " & FORMAT ( [EBITDA Margin %], "0.0%" ) )
+		displayFolder: KPI Labels
+		lineageTag: 7e6d2f2f-0fbb-4d6b-a443-01f97debaa1a
+
+	measure 'PAT Note' = VAR G = DIVIDE ( [PAT] - [PAT PY], [PAT PY] ) RETURN IF ( ISBLANK ( [PAT PY] ), "Margin " & FORMAT ( [PAT Margin %], "0.0%" ), IF ( G < 0, "▼ ", "▲ " ) & FORMAT ( ABS ( G ), "0.0%" ) & " vs last year · margin " & FORMAT ( [PAT Margin %], "0.0%" ) )
+		displayFolder: KPI Labels
+		lineageTag: 766d6bb9-7428-472a-b859-9a9cd0aa6a61
+
+	measure 'EBITDA Var Note' = "Budget " & FORMAT ( DIVIDE ( [Budget EBITDA], 1e7 ), "0.00" ) & " · " & FORMAT ( DIVIDE ( [EBITDA Var], [Budget EBITDA] ), "0.0%" ) & " vs budget"
+		displayFolder: KPI Labels
+		lineageTag: 9b7884f5-b814-4c61-ad8e-a0980c4b19b4
+
+	measure 'Revenue Note Colour' = IF ( [Revenue] < [Revenue PY], "#C8553D", "#2A9D8F" )
+		displayFolder: KPI Labels
+		lineageTag: 85c21dfe-a09a-4db3-898a-eff2d145f6d4
+
+	measure 'Gross Margin Note Colour' = IF ( [Gross Margin %] < [Gross Margin % PY], "#C8553D", "#2A9D8F" )
+		displayFolder: KPI Labels
+		lineageTag: 0fc70265-5d9b-407f-b1fd-588db795f410
+
+	measure 'EBITDA Note Colour' = IF ( [EBITDA] < [EBITDA PY], "#C8553D", "#2A9D8F" )
+		displayFolder: KPI Labels
+		lineageTag: 7a42705c-69c4-4603-b4a1-5ea0e8f780b6
+
+	measure 'PAT Note Colour' = IF ( [PAT] < [PAT PY], "#C8553D", "#2A9D8F" )
+		displayFolder: KPI Labels
+		lineageTag: 2223ceaf-72d9-4710-bbfa-1d438bfb96a3
+
+	measure 'EBITDA Var Colour' = IF ( [EBITDA Var] < 0, "#C8553D", "#2A9D8F" )
+		displayFolder: KPI Labels
+		lineageTag: 090caec0-9dd0-4c9e-b9af-9e0798d79b8f
+
+	/// Colour scale for the ageing chart: teal when not due, red when long overdue.
+	measure 'Ageing Colour' = SWITCH ( SELECTEDVALUE ( 'AR Ageing Bucket'[ageing_sort] ), 1, "#2A9D8F", 2, "#8AB6D6", 3, "#E9A23B", 4, "#E07B39", 5, "#C8553D", 6, "#8E2C1F", "#6C7A89" )
+		displayFolder: Receivables\As at selected date
+		lineageTag: 86ac42da-fe62-4248-9afd-4ba887a760c0
+
+	measure 'Operating Cash Colour' = IF ( [Cash from Operations (Cr)] < 0, "#C8553D", "#2A9D8F" )
+		displayFolder: Cash Flow
+		lineageTag: 46b62dfb-b581-4820-bd31-214c5913240e
+
+	measure 'Net Cash Colour' = IF ( [Net Cash Flow (Cr)] < 0, "#C8553D", "#2A9D8F" )
+		displayFolder: Cash Flow
+		lineageTag: 4a55a600-2b5d-42b2-a46d-9ffee337011d
+
+	measure 'Revenue Var (Cr)' = DIVIDE ( [Revenue Var], 10000000 )
+		formatString: +#,0.00;-#,0.00;0.00
+		displayFolder: KPI Labels
+		lineageTag: fa3d567d-90cd-4f66-bff6-b4c0630db569
+
+	measure 'Revenue Var Note' = "Actual " & FORMAT ( [Revenue (Cr)], "0.00" ) & " vs budget " & FORMAT ( [Budget Revenue (Cr)], "0.00" )
+		displayFolder: KPI Labels
+		lineageTag: 15f2ceee-d805-441e-9669-56cee09096a5
+
+	measure 'Revenue Var Colour' = IF ( [Revenue Var] < 0, "#C8553D", "#2A9D8F" )
+		displayFolder: KPI Labels
+		lineageTag: 03ec78b1-1821-46cf-8f02-52de2490a116
+
+	column Column1
+		dataType: string
+		lineageTag: 695f839f-489c-45a7-afff-8861f2ca23a2
+		summarizeBy: none
+		sourceColumn: Column1
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Measures (2)' = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Column1 = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

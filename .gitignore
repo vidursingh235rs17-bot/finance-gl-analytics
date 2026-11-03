@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+# Power BI local caches and settings
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+# Local backups (large .pbix copies and pre-redesign snapshots)
+powerbi/backup/
+
+# Private prep notes (kept locally, not published)
+LEARNING_PLAN.md
+docs/resume_and_interview.md

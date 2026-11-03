@@ -1,0 +1,78 @@
+table Account
+	lineageTag: 5c0a1074-bf36-4065-ba76-2425920484ce
+
+	column account_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 3d81c006-ebff-4c7a-850d-052bdb29323e
+		summarizeBy: none
+		sourceColumn: account_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column account_name
+		dataType: string
+		lineageTag: 6720aa4b-fa05-435a-803e-892e9f8a1e82
+		summarizeBy: none
+		sourceColumn: account_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column account_class
+		dataType: string
+		lineageTag: 27d1675c-8b51-4dac-9a6d-298cd6e9ce68
+		summarizeBy: none
+		sourceColumn: account_class
+		sortByColumn: class_sort
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column account_subclass
+		dataType: string
+		lineageTag: 9995c731-e726-4eb9-9fa8-c3f37f6b82d3
+		summarizeBy: none
+		sourceColumn: account_subclass
+
+		annotation SummarizationSetBy = Automatic
+
+	column statement
+		dataType: string
+		lineageTag: 4b9cd323-40bc-4e03-b185-7fd4c609470a
+		summarizeBy: none
+		sourceColumn: statement
+
+		annotation SummarizationSetBy = Automatic
+
+	column class_sort
+		dataType: int64
+		formatString: 0
+		lineageTag: 587af2ca-e740-4c44-95cd-83f9fadb0cf1
+		summarizeBy: sum
+		sourceColumn: class_sort
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_line
+		dataType: string
+		lineageTag: a8d2d63a-ed0e-4308-8e6b-407cad494d71
+		summarizeBy: none
+		sourceColumn: product_line
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Account = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\Sammu\Documents\finance-gl-analytics\data\dim_account.csv"),[Delimiter=",", Columns=7, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"account_id", Int64.Type}, {"account_name", type text}, {"account_class", type text}, {"account_subclass", type text}, {"statement", type text}, {"class_sort", Int64.Type}, {"product_line", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

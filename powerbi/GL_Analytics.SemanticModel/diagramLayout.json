@@ -1,0 +1,204 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 1525.9218511408626,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 334.18269278110984,
+            "y": 272.21728500534419
+          },
+          "nodeIndex": "Account",
+          "nodeLineageTag": "5c0a1074-bf36-4065-ba76-2425920484ce",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1470.5580401778175,
+            "y": 129.70587139933764
+          },
+          "nodeIndex": "ARInvoice",
+          "nodeLineageTag": "cdfd133d-474a-4968-b97d-b47b189e1dcf",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 50,
+            "y": 433.41174279867528
+          },
+          "nodeIndex": "Budget",
+          "nodeLineageTag": "f3b04b79-2816-446a-8bc3-a83cb81adeb9",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1704.5580401778175,
+            "y": 253.70587139933764
+          },
+          "nodeIndex": "CostCentre",
+          "nodeLineageTag": "9a41a2b9-a6dd-493e-86a9-b059871b891a",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1186.5580401778175,
+            "y": 179.70587139933764
+          },
+          "nodeIndex": "Customer",
+          "nodeLineageTag": "a196be39-1d34-4c96-8a0a-7dfcf8715021",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1988.5580401778175,
+            "y": 179.70587139933764
+          },
+          "nodeIndex": "Date",
+          "nodeLineageTag": "5f128b97-494e-4035-8568-cae1fb75be8b",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 618.38448636284306,
+            "y": 121.33403624409516
+          },
+          "nodeIndex": "GL",
+          "nodeLineageTag": "423bbe1c-da73-4510-a492-12ac48daada5",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 902.55804017781747,
+            "y": -50
+          },
+          "nodeIndex": "Journal",
+          "nodeLineageTag": "48a50207-77de-447a-9ec7-5fef71ce3fe3",
+          "size": {
+            "height": 296,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2272.5580401778175,
+            "y": 253.70587139933764
+          },
+          "nodeIndex": "User",
+          "nodeLineageTag": "3314d966-aaf8-43b8-89c2-aab925eb8bf9",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2556.5580401778175,
+            "y": 253.70587139933764
+          },
+          "nodeIndex": "Vendor",
+          "nodeLineageTag": "9067616c-39ff-41ad-98a7-a596150e89fd",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2790.5580401778175,
+            "y": 277.70587139933764
+          },
+          "nodeIndex": "Measures (2)",
+          "nodeLineageTag": "797335ea-2409-44e1-8a02-5b1895ab7886",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3024.5580401778175,
+            "y": 241.70587139933764
+          },
+          "nodeIndex": "AR Ageing Bucket",
+          "nodeLineageTag": "78930ce5-9c85-405a-92d1-ab2c782f3b3c",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3258.5580401778175,
+            "y": 217.70587139933764
+          },
+          "nodeIndex": "JournalFlags",
+          "nodeLineageTag": "f032592b-b19e-4459-b6b3-f0e34ad47558",
+          "size": {
+            "height": 224,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3492.5580401778175,
+            "y": 241.70587139933764
+          },
+          "nodeIndex": "Cash Flow Line",
+          "nodeLineageTag": "c6ce2669-d64f-44c0-97c4-e03eb994ed4c",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 62.33608959042445,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

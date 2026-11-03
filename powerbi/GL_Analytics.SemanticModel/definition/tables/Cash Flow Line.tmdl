@@ -1,0 +1,50 @@
+/// Lines of the indirect cash flow statement, built from movements in every non-cash account.
+table 'Cash Flow Line'
+	lineageTag: c6ce2669-d64f-44c0-97c4-e03eb994ed4c
+
+	column cf_line
+		lineageTag: 7631b301-3f2f-4c49-8bb5-a58d95d13188
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [cf_line]
+		sortByColumn: cf_sort
+
+	column cf_sort
+		isHidden
+		lineageTag: d3191ed1-818e-4336-b3e9-8ea9c0e5e71d
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [cf_sort]
+
+	column cf_section
+		lineageTag: e9060eb1-4650-4846-8efa-c3a1d97d7593
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [cf_section]
+		sortByColumn: cf_section_sort
+
+	column cf_section_sort
+		isHidden
+		lineageTag: 80af34f1-25d7-4f2b-8163-d7771f519462
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [cf_section_sort]
+
+	partition 'Cash Flow Line' = calculated
+		mode: import
+		source =
+				DATATABLE (
+				    "cf_line", STRING, "cf_sort", INTEGER, "cf_section", STRING, "cf_section_sort", INTEGER,
+				    {
+				        { "Profit after tax", 1, "Operating", 1 },
+				        { "Depreciation added back", 2, "Operating", 1 },
+				        { "Trade receivables", 3, "Operating", 1 },
+				        { "Inventory", 4, "Operating", 1 },
+				        { "Trade payables", 5, "Operating", 1 },
+				        { "Other working capital", 6, "Operating", 1 },
+				        { "Capital expenditure", 7, "Investing", 2 },
+				        { "Borrowings", 8, "Financing", 3 },
+				        { "Equity", 9, "Financing", 3 }
+				    }
+				)
+

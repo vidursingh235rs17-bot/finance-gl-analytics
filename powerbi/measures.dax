@@ -1,0 +1,294 @@
+// DAX measures for the GL analytics report.
+//
+// How to use: create an empty table called "Measures" (Home > Enter data > Load),
+// then for each measure choose New measure and paste one block. The comment above
+// each block gives the format to apply.
+//
+// Sign convention: GL[amount] is debit positive, credit negative. Revenue is
+// therefore negative in the ledger and is flipped in the measures. Budget amounts
+// are stored positive for both revenue and costs.
+
+// ---------------------------------------------------------------- base
+GL Amount = SUM ( GL[amount] )
+
+Budget Amount = SUM ( Budget[budget_amount] )
+
+// ------------------------------------------------------ profit and loss
+// Format all as whole number with thousands separator (or INR crore, see BUILD_GUIDE)
+Revenue = - CALCULATE ( [GL Amount], Account[account_class] = "Revenue" )
+
+COGS = CALCULATE ( [GL Amount], Account[account_class] = "COGS" )
+
+Gross Profit = [Revenue] - [COGS]
+
+Opex = CALCULATE ( [GL Amount], Account[account_class] = "Operating Expenses" )
+
+EBITDA = [Gross Profit] - [Opex]
+
+Depreciation = CALCULATE ( [GL Amount], Account[account_class] = "Depreciation" )
+
+EBIT = [EBITDA] - [Depreciation]
+
+Finance Costs = CALCULATE ( [GL Amount], Account[account_class] = "Finance Costs" )
+
+PBT = [EBIT] - [Finance Costs]
+
+Tax = CALCULATE ( [GL Amount], Account[account_class] = "Tax" )
+
+PAT = [PBT] - [Tax]
+
+// Format as percentage, 1 decimal
+Gross Margin % = DIVIDE ( [Gross Profit], [Revenue] )
+
+EBITDA Margin % = DIVIDE ( [EBITDA], [Revenue] )
+
+PAT Margin % = DIVIDE ( [PAT], [Revenue] )
+
+Opex % of Revenue = DIVIDE ( [Opex], [Revenue] )
+
+// ---------------------------------------------------------------- budget
+Budget Revenue = CALCULATE ( [Budget Amount], Account[account_class] = "Revenue" )
+
+Budget COGS = CALCULATE ( [Budget Amount], Account[account_class] = "COGS" )
+
+Budget Gross Profit = [Budget Revenue] - [Budget COGS]
+
+Budget Opex = CALCULATE ( [Budget Amount], Account[account_class] = "Operating Expenses" )
+
+Budget EBITDA = [Budget Gross Profit] - [Budget Opex]
+
+Budget PAT =
+[Budget EBITDA]
+    - CALCULATE ( [Budget Amount], Account[account_class] IN { "Depreciation", "Finance Costs", "Tax" } )
+
+Budget Gross Margin % = DIVIDE ( [Budget Gross Profit], [Budget Revenue] )
+
+Budget EBITDA Margin % = DIVIDE ( [Budget EBITDA], [Budget Revenue] )
+
+// ------------------------------------------------- variance (favourable +)
+Revenue Var = [Revenue] - [Budget Revenue]
+
+Revenue Var % = DIVIDE ( [Revenue Var], [Budget Revenue] )
+
+Gross Profit Var = [Gross Profit] - [Budget Gross Profit]
+
+EBITDA Var = [EBITDA] - [Budget EBITDA]
+
+EBITDA Var % = DIVIDE ( [EBITDA Var], [Budget EBITDA] )
+
+PAT Var = [PAT] - [Budget PAT]
+
+// The three measures below work at any level of the Account table, so they can
+// be used in a matrix by class / account and in the variance waterfall.
+Actual (P&L) =
+CALCULATE (
+    SUMX ( Account, [GL Amount] * IF ( Account[account_class] = "Revenue", -1, 1 ) ),
+    KEEPFILTERS ( Account[statement] = "Profit & Loss" )
+)
+
+Budget (P&L) =
+CALCULATE ( [Budget Amount], KEEPFILTERS ( Account[statement] = "Profit & Loss" ) )
+
+// Positive = better than budget (more revenue or less cost). The grand total equals PAT Var.
+Variance Fav/(Adv) =
+CALCULATE (
+    SUMX (
+        Account,
+        VAR ActualAmt = [GL Amount]
+        VAR BudgetAmt = [Budget Amount]
+        RETURN
+            IF ( Account[account_class] = "Revenue", - ActualAmt - BudgetAmt, BudgetAmt - ActualAmt )
+    ),
+    KEEPFILTERS ( Account[statement] = "Profit & Loss" )
+)
+
+Variance % =
+DIVIDE ( [Variance Fav/(Adv)], [Budget (P&L)] )
+
+// ------------------------------------------------------ time comparison
+Revenue PY = CALCULATE ( [Revenue], SAMEPERIODLASTYEAR ( 'Date'[date] ) )
+
+Revenue YoY % = DIVIDE ( [Revenue] - [Revenue PY], [Revenue PY] )
+
+EBITDA PY = CALCULATE ( [EBITDA], SAMEPERIODLASTYEAR ( 'Date'[date] ) )
+
+EBITDA YoY % = DIVIDE ( [EBITDA] - [EBITDA PY], [EBITDA PY] )
+
+Gross Margin % PY = CALCULATE ( [Gross Margin %], SAMEPERIODLASTYEAR ( 'Date'[date] ) )
+
+// Fiscal year to date (April to March), written without TOTALYTD so it does not
+// depend on how the year-end text is read in different regional settings.
+Revenue FYTD =
+VAR MaxDate = MAX ( 'Date'[date] )
+VAR CurrentFY = MAX ( 'Date'[fiscal_year] )
+RETURN
+    CALCULATE (
+        [Revenue],
+        FILTER ( ALL ( 'Date' ), 'Date'[fiscal_year] = CurrentFY && 'Date'[date] <= MaxDate )
+    )
+
+EBITDA FYTD =
+VAR MaxDate = MAX ( 'Date'[date] )
+VAR CurrentFY = MAX ( 'Date'[fiscal_year] )
+RETURN
+    CALCULATE (
+        [EBITDA],
+        FILTER ( ALL ( 'Date' ), 'Date'[fiscal_year] = CurrentFY && 'Date'[date] <= MaxDate )
+    )
+
+EBITDA Rolling 3M =
+CALCULATE ( [EBITDA], DATESINPERIOD ( 'Date'[date], MAX ( 'Date'[date] ), -3, MONTH ) )
+
+// --------------------------------------------------------- balance sheet
+// Closing balance at the last date in the current filter (debit positive).
+Balance =
+VAR MaxDate = MAX ( 'Date'[date] )
+RETURN
+    CALCULATE ( [GL Amount], FILTER ( ALL ( 'Date' ), 'Date'[date] <= MaxDate ) )
+
+// For a balance sheet matrix: assets positive, liabilities and equity positive.
+Balance (Display) =
+CALCULATE (
+    SUMX ( Account, [Balance] * IF ( Account[account_class] = "Assets", 1, -1 ) ),
+    KEEPFILTERS ( Account[statement] = "Balance Sheet" )
+)
+
+Total Assets = CALCULATE ( [Balance], Account[account_class] = "Assets" )
+
+Total Liabilities = - CALCULATE ( [Balance], Account[account_class] = "Liabilities" )
+
+Booked Equity = - CALCULATE ( [Balance], Account[account_class] = "Equity" )
+
+// Profit since 1 Apr 2024; the ledger has no year-end closing entry to retained earnings.
+Cumulative Profit = - CALCULATE ( [Balance], Account[statement] = "Profit & Loss" )
+
+// Must be zero. Show it on the balance sheet page as a control.
+Balance Sheet Check = [Total Assets] - [Total Liabilities] - [Booked Equity] - [Cumulative Profit]
+
+Bank Balance = CALCULATE ( [Balance], Account[account_id] = 1000 )
+
+AR Balance = CALCULATE ( [Balance], Account[account_id] = 1100 )
+
+Inventory Balance = CALCULATE ( [Balance], Account[account_id] = 1200 )
+
+AP Balance = - CALCULATE ( [Balance], Account[account_id] = 2000 )
+
+Borrowings = - CALCULATE ( [Balance], Account[account_subclass] = "Borrowings" )
+
+Net Working Capital = [AR Balance] + [Inventory Balance] - [AP Balance]
+
+// -------------------------------------------------------- working capital
+Gross Invoiced = SUM ( ARInvoice[gross_amount] )
+
+// Receivables against the last three months of invoicing (both include GST).
+// Read it at month ends from June 2024 onwards; earlier months lack a full three months.
+// Format as whole number.
+DSO =
+VAR Period = DATESINPERIOD ( 'Date'[date], MAX ( 'Date'[date] ), -3, MONTH )
+RETURN
+    DIVIDE ( [AR Balance], CALCULATE ( [Gross Invoiced], Period ) ) * COUNTROWS ( Period )
+
+DIO =
+VAR Period = DATESINPERIOD ( 'Date'[date], MAX ( 'Date'[date] ), -3, MONTH )
+RETURN
+    DIVIDE ( [Inventory Balance], CALCULATE ( [COGS], Period ) ) * COUNTROWS ( Period )
+
+// Payables include GST and non-stock purchases, so treat this as an indicator only.
+DPO =
+VAR Period = DATESINPERIOD ( 'Date'[date], MAX ( 'Date'[date] ), -3, MONTH )
+RETURN
+    DIVIDE ( [AP Balance], CALCULATE ( [COGS], Period ) ) * COUNTROWS ( Period )
+
+Cash Conversion Cycle = [DSO] + [DIO] - [DPO]
+
+// ---------------------------------------- receivables as at 31 Mar 2026
+// These ignore the date slicer because the ageing is fixed at the year end.
+Open AR =
+CALCULATE ( SUM ( ARInvoice[gross_amount] ), ARInvoice[status] = "Open", ALL ( 'Date' ) )
+
+Open Invoices =
+CALCULATE ( COUNTROWS ( ARInvoice ), ARInvoice[status] = "Open", ALL ( 'Date' ) )
+
+Overdue AR = CALCULATE ( [Open AR], ARInvoice[days_overdue] > 0 )
+
+Overdue AR over 90 Days = CALCULATE ( [Open AR], ARInvoice[days_overdue] > 90 )
+
+Overdue % = DIVIDE ( [Overdue AR], [Open AR] )
+
+AR per GL (Closing) = CALCULATE ( [AR Balance], ALL ( 'Date' ) )
+
+// General ledger less sub-ledger. Anything other than zero needs explaining.
+AR Reconciliation Difference =
+[AR per GL (Closing)] - CALCULATE ( [Open AR], ALL ( ARInvoice ), ALL ( Customer ) )
+
+Average Days to Pay = AVERAGE ( ARInvoice[days_to_pay] )
+
+// ------------------------------------------------------- journal testing
+Journals = COUNTROWS ( Journal )
+
+Manual Journals = CALCULATE ( COUNTROWS ( Journal ), Journal[source] = "Manual" )
+
+Manual Journal Value = CALCULATE ( SUM ( Journal[journal_amount] ), Journal[source] = "Manual" )
+
+Manual % of Journals = DIVIDE ( [Manual Journals], [Journals] )
+
+// Distinct journals failing at least one test. Responds to a slicer on JournalFlags[test_name].
+Flagged Journals = DISTINCTCOUNT ( JournalFlags[journal_id] )
+
+Flag Hits = COUNTROWS ( JournalFlags )
+
+// Each journal is counted once even if it fails several tests.
+Flagged Value =
+SUMX ( VALUES ( JournalFlags[journal_id] ), CALCULATE ( MAX ( JournalFlags[journal_amount] ) ) )
+
+Flagged Manual Journals =
+CALCULATE ( [Flagged Journals], Journal[source] = "Manual" )
+
+Flagged % of Manual Journals = DIVIDE ( [Flagged Manual Journals], [Manual Journals] )
+
+Journals with 2+ Flags = CALCULATE ( COUNTROWS ( Journal ), Journal[flag_count] >= 2 )
+
+// One payment of each pair is the possible overpayment.
+Duplicate Payment Exposure =
+CALCULATE ( SUM ( JournalFlags[journal_amount] ), JournalFlags[test_code] = "T11" ) / 2
+
+Manual Revenue Journals Value =
+CALCULATE ( SUM ( JournalFlags[journal_amount] ), JournalFlags[test_code] = "T9" )
+
+// ---------------------------------------------------------------- titles
+Title Period =
+"Period: " & FORMAT ( MIN ( 'Date'[date] ), "mmm yyyy" ) & " to " & FORMAT ( MAX ( 'Date'[date] ), "mmm yyyy" )
+
+// ------------------------------------------------------------- cash flow
+// Needs the 'Cash Flow Line' calculated table (see the model). Indirect method:
+// the movement in every non-cash account, sign reversed, so the total always
+// equals the movement in the bank account.
+CF Activity = - CALCULATE ( [GL Amount], Journal[source] <> "Opening" )
+
+Cash Flow =
+SUMX (
+    VALUES ( 'Cash Flow Line'[cf_sort] ),
+    SWITCH (
+        'Cash Flow Line'[cf_sort],
+        1, CALCULATE ( [CF Activity], Account[statement] = "Profit & Loss" ),
+        2, CALCULATE ( [CF Activity], Account[account_id] = 1510 ),
+        3, CALCULATE ( [CF Activity], Account[account_id] = 1100 ),
+        4, CALCULATE ( [CF Activity], Account[account_id] = 1200 ),
+        5, CALCULATE ( [CF Activity], Account[account_id] = 2000 ),
+        6, CALCULATE ( [CF Activity], Account[account_id] IN { 1150, 1300, 1400, 2100, 2200, 2300 } ),
+        7, CALCULATE ( [CF Activity], Account[account_id] = 1500 ),
+        8, CALCULATE ( [CF Activity], Account[account_id] IN { 2400, 2500 } ),
+        9, CALCULATE ( [CF Activity], Account[account_id] IN { 3000, 3100 } )
+    )
+)
+
+Cash from Operations (Cr) = CALCULATE ( DIVIDE ( [Cash Flow], 1e7 ), 'Cash Flow Line'[cf_section] = "Operating" )
+
+Net Cash Flow (Cr) = CALCULATE ( DIVIDE ( [Cash Flow], 1e7 ), ALL ( 'Cash Flow Line' ) )
+
+// Control: must be zero.
+Cash Flow Check =
+ROUND ( CALCULATE ( [Cash Flow], ALL ( 'Cash Flow Line' ) ) + CALCULATE ( [CF Activity], Account[account_id] = 1000 ), 0 )
+
+// The KPI card notes ("Revenue Note" etc.) and colour measures are in the model,
+// display folders "KPI Labels" and "Cash Flow".

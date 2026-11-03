@@ -1,0 +1,135 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "67c7e44225842bd83871",
+  "displayName": "Journal testing",
+  "displayOption": "FitToPage",
+  "height": 1080,
+  "width": 1920,
+  "visualInteractions": [
+    {
+      "source": "98432f485ce678fc22a7",
+      "target": "0271720ee487dd24b517",
+      "type": "NoFilter"
+    },
+    {
+      "source": "98432f485ce678fc22a7",
+      "target": "801d4fa9bbe10e80a1a4",
+      "type": "NoFilter"
+    },
+    {
+      "source": "98432f485ce678fc22a7",
+      "target": "93cb49b457646daacacb",
+      "type": "NoFilter"
+    },
+    {
+      "source": "98432f485ce678fc22a7",
+      "target": "40b5ff6b735ffff3e447",
+      "type": "NoFilter"
+    },
+    {
+      "source": "98432f485ce678fc22a7",
+      "target": "0212ed6e655f32794c94",
+      "type": "NoFilter"
+    },
+    {
+      "source": "81e85eb2ddd684b0509f",
+      "target": "0271720ee487dd24b517",
+      "type": "NoFilter"
+    },
+    {
+      "source": "81e85eb2ddd684b0509f",
+      "target": "801d4fa9bbe10e80a1a4",
+      "type": "NoFilter"
+    },
+    {
+      "source": "81e85eb2ddd684b0509f",
+      "target": "93cb49b457646daacacb",
+      "type": "NoFilter"
+    },
+    {
+      "source": "81e85eb2ddd684b0509f",
+      "target": "40b5ff6b735ffff3e447",
+      "type": "NoFilter"
+    },
+    {
+      "source": "81e85eb2ddd684b0509f",
+      "target": "0212ed6e655f32794c94",
+      "type": "NoFilter"
+    },
+    {
+      "source": "b934aec0547ea4ac94a0",
+      "target": "0271720ee487dd24b517",
+      "type": "NoFilter"
+    },
+    {
+      "source": "b934aec0547ea4ac94a0",
+      "target": "801d4fa9bbe10e80a1a4",
+      "type": "NoFilter"
+    },
+    {
+      "source": "b934aec0547ea4ac94a0",
+      "target": "93cb49b457646daacacb",
+      "type": "NoFilter"
+    },
+    {
+      "source": "b934aec0547ea4ac94a0",
+      "target": "40b5ff6b735ffff3e447",
+      "type": "NoFilter"
+    },
+    {
+      "source": "b934aec0547ea4ac94a0",
+      "target": "0212ed6e655f32794c94",
+      "type": "NoFilter"
+    }
+  ],
+  "objects": {
+    "background": [
+      {
+        "properties": {
+          "color": {
+            "solid": {
+              "color": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'#F2F4F8'"
+                  }
+                }
+              }
+            }
+          },
+          "transparency": {
+            "expr": {
+              "Literal": {
+                "Value": "0D"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "outspace": [
+      {
+        "properties": {
+          "color": {
+            "solid": {
+              "color": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'#F2F4F8'"
+                  }
+                }
+              }
+            }
+          },
+          "transparency": {
+            "expr": {
+              "Literal": {
+                "Value": "0D"
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

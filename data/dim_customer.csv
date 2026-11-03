@@ -1,0 +1,61 @@
+customer_id,customer_name,region,segment,credit_terms_days
+C001,Apex Auto Components,North,Distributor,60
+C002,Bharat Agro Equipment,South,Distributor,45
+C003,Coral Industrial Spares,West,OEM,30
+C004,Deccan Engineering Works,North,Workshop,60
+C005,Eastern Hydraulics,South,Distributor,30
+C006,Falcon Precision Parts,West,Workshop,45
+C007,Ganga Machine Tools,North,Workshop,30
+C008,Horizon Castings,South,OEM,30
+C009,Indus Motors,West,OEM,45
+C010,Jupiter Fabricators,North,Distributor,60
+C011,Kaveri Auto Components,South,Distributor,45
+C012,Lotus Agro Equipment,West,Workshop,45
+C013,Malabar Industrial Spares,North,OEM,45
+C014,Nimbus Engineering Works,South,Workshop,45
+C015,Orbit Hydraulics,West,Distributor,45
+C016,Pinnacle Precision Parts,North,Distributor,45
+C017,Quantum Machine Tools,South,OEM,45
+C018,Regal Castings,West,Workshop,45
+C019,Sahyadri Motors,North,Distributor,60
+C020,Trident Fabricators,South,Workshop,30
+C021,Apex Engineering Works,West,Distributor,45
+C022,Bharat Hydraulics,North,Distributor,30
+C023,Coral Precision Parts,South,Distributor,45
+C024,Deccan Machine Tools,West,OEM,45
+C025,Eastern Castings,North,Distributor,30
+C026,Falcon Motors,South,OEM,30
+C027,Ganga Fabricators,West,Workshop,60
+C028,Horizon Auto Components,North,Workshop,60
+C029,Indus Agro Equipment,South,Distributor,30
+C030,Jupiter Industrial Spares,West,OEM,45
+C031,Kaveri Engineering Works,North,Distributor,60
+C032,Lotus Hydraulics,South,Workshop,30
+C033,Malabar Precision Parts,West,OEM,60
+C034,Nimbus Machine Tools,North,Workshop,30
+C035,Orbit Castings,South,Distributor,60
+C036,Pinnacle Motors,West,OEM,30
+C037,Quantum Fabricators,North,Workshop,45
+C038,Regal Auto Components,South,Distributor,60
+C039,Sahyadri Agro Equipment,West,OEM,45
+C040,Trident Industrial Spares,North,OEM,45
+C041,Apex Machine Tools,South,Workshop,30
+C042,Bharat Castings,West,OEM,30
+C043,Coral Motors,North,OEM,30
+C044,Deccan Fabricators,South,Distributor,60
+C045,Eastern Auto Components,West,Distributor,30
+C046,Falcon Agro Equipment,North,Distributor,30
+C047,Ganga Industrial Spares,South,Distributor,30
+C048,Horizon Engineering Works,West,OEM,45
+C049,Indus Hydraulics,North,Workshop,45
+C050,Jupiter Precision Parts,South,Workshop,45
+C051,Kaveri Machine Tools,West,OEM,30
+C052,Lotus Castings,North,OEM,60
+C053,Malabar Motors,South,OEM,30
+C054,Nimbus Fabricators,West,Distributor,45
+C055,Orbit Auto Components,North,Workshop,60
+C056,Pinnacle Agro Equipment,South,OEM,30
+C057,Quantum Industrial Spares,West,Workshop,60
+C058,Regal Engineering Works,North,OEM,60
+C059,Sahyadri Hydraulics,South,Workshop,60
+C060,Trident Precision Parts,West,Distributor,45

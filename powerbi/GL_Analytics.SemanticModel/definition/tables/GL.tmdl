@@ -1,0 +1,81 @@
+table GL
+	lineageTag: 423bbe1c-da73-4510-a492-12ac48daada5
+
+	column journal_id
+		dataType: string
+		lineageTag: 135cebba-8f3e-4156-8773-627737a2ce25
+		summarizeBy: none
+		sourceColumn: journal_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column line_no
+		dataType: int64
+		formatString: 0
+		lineageTag: 930fa9b7-5b3f-4de3-8eec-ae70e8eba0d7
+		summarizeBy: sum
+		sourceColumn: line_no
+
+		annotation SummarizationSetBy = Automatic
+
+	column account_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 040979e6-93a6-4170-92c6-079cbf158ce7
+		summarizeBy: none
+		sourceColumn: account_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column cost_centre_id
+		dataType: string
+		lineageTag: 6c95c744-525f-4341-ad1b-62d306cf2ae1
+		summarizeBy: none
+		sourceColumn: cost_centre_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column debit
+		dataType: double
+		lineageTag: c0fcaaf8-8a4c-43fc-a39e-6c69c2cef966
+		summarizeBy: sum
+		sourceColumn: debit
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column credit
+		dataType: double
+		lineageTag: b350dca5-b121-487c-bb0d-39f52aa50add
+		summarizeBy: sum
+		sourceColumn: credit
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column amount
+		dataType: double
+		lineageTag: b76b7d1a-e835-4f1a-a3ae-438ee247e2a6
+		summarizeBy: sum
+		sourceColumn: amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition GL = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\Sammu\Documents\finance-gl-analytics\data\journal_lines.csv"),[Delimiter=",", Columns=7, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"journal_id", type text}, {"line_no", Int64.Type}, {"account_id", Int64.Type}, {"cost_centre_id", type text}, {"debit", type number}, {"credit", type number}, {"amount", type number}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

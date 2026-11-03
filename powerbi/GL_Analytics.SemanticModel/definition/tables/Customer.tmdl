@@ -1,0 +1,58 @@
+table Customer
+	lineageTag: a196be39-1d34-4c96-8a0a-7dfcf8715021
+
+	column customer_id
+		dataType: string
+		lineageTag: 61df8983-d370-43f9-b374-7b2b428eee09
+		summarizeBy: none
+		sourceColumn: customer_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_name
+		dataType: string
+		lineageTag: d14d45e6-9fa5-4b45-bfae-e1039d85aa79
+		summarizeBy: none
+		sourceColumn: customer_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column region
+		dataType: string
+		lineageTag: 2aed7117-abc5-4aca-b389-62d7630b7e00
+		summarizeBy: none
+		sourceColumn: region
+
+		annotation SummarizationSetBy = Automatic
+
+	column segment
+		dataType: string
+		lineageTag: 2b50d367-7cdd-40e4-9ef3-261c9c2b9e4f
+		summarizeBy: none
+		sourceColumn: segment
+
+		annotation SummarizationSetBy = Automatic
+
+	column credit_terms_days
+		dataType: int64
+		formatString: 0
+		lineageTag: 6fa8aeb8-b4cc-462a-8279-9aded37b886e
+		summarizeBy: none
+		sourceColumn: credit_terms_days
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Customer = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\Sammu\Documents\finance-gl-analytics\data\dim_customer.csv"),[Delimiter=",", Columns=5, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"customer_id", type text}, {"customer_name", type text}, {"region", type text}, {"segment", type text}, {"credit_terms_days", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,42 @@
+table CostCentre
+	lineageTag: 9a41a2b9-a6dd-493e-86a9-b059871b891a
+
+	column cost_centre_id
+		dataType: string
+		lineageTag: 0166c6fa-140a-49c4-873a-22e8067ba25d
+		summarizeBy: none
+		sourceColumn: cost_centre_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column cost_centre_name
+		dataType: string
+		lineageTag: 482404eb-6c34-4d53-8c94-adba5e7f1f0f
+		summarizeBy: none
+		sourceColumn: cost_centre_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column function
+		dataType: string
+		lineageTag: 98bb6977-1eca-415c-9c0f-0e618487d288
+		summarizeBy: none
+		sourceColumn: function
+
+		annotation SummarizationSetBy = Automatic
+
+	partition CostCentre = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\Sammu\Documents\finance-gl-analytics\data\dim_cost_centre.csv"),[Delimiter=",", Columns=3, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}, {"Column2", type text}, {"Column3", type text}}),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Changed Type", [PromoteAllScalars=true]),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers",{{"cost_centre_id", type text}, {"cost_centre_name", type text}, {"function", type text}})
+				in
+				    #"Changed Type1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

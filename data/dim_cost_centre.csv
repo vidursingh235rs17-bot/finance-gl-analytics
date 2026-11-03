@@ -1,0 +1,8 @@
+cost_centre_id,cost_centre_name,function
+CC00,Corporate / Balance Sheet,Corporate
+CC10,Sales - North,Sales
+CC20,Sales - South,Sales
+CC30,Sales - West,Sales
+CC40,Operations & Warehouse,Operations
+CC50,Finance & Admin,Support
+CC60,IT,Support

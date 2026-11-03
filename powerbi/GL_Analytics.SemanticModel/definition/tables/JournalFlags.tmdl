@@ -1,0 +1,77 @@
+/// One row per journal per audit test failed (T1-T11).
+table JournalFlags
+	lineageTag: f032592b-b19e-4459-b6b3-f0e34ad47558
+
+	column journal_id
+		dataType: string
+		lineageTag: 9cf7b320-2f54-486b-a683-0973fd681b2b
+		summarizeBy: none
+		sourceColumn: journal_id
+
+	column journal_amount
+		dataType: double
+		formatString: #,0
+		lineageTag: fb9cd5c1-dca1-46a3-82e5-71a92213027f
+		summarizeBy: none
+		sourceColumn: journal_amount
+
+	column test_code
+		dataType: string
+		lineageTag: 6be3f3db-194b-4567-924f-1e18bc1bded5
+		summarizeBy: none
+		sourceColumn: test_code
+
+	column test_name
+		dataType: string
+		lineageTag: 49cf4593-1ae7-450e-b87c-5bfc7d45522a
+		summarizeBy: none
+		sourceColumn: test_name
+		sortByColumn: test_sort
+
+	column test_sort
+		dataType: int64
+		isHidden
+		lineageTag: 6c91575f-f74e-4da8-80c4-00eaafbc8ee1
+		summarizeBy: none
+		sourceColumn: test_sort
+
+	column risk_area
+		dataType: string
+		lineageTag: 4b0a05f4-315e-4b8b-b9cb-e0c21944ee1b
+		summarizeBy: none
+		sourceColumn: risk_area
+
+	/// Plain-English name of the audit check.
+	column check_label
+		dataType: string
+		lineageTag: 70636985-dad3-4a6b-ab50-89ecce19cdc0
+		summarizeBy: none
+		sourceColumn: check_label
+
+	partition JournalFlags = m
+		mode: import
+		source =
+				let
+				    Source = Table.SelectColumns(Table.SelectRows(Journal, each [is_flagged]),
+				        {"journal_id", "journal_amount", "T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11"}),
+				    Unpivoted = Table.UnpivotOtherColumns(Source, {"journal_id", "journal_amount"}, "test_code", "failed"),
+				    Failed = Table.RemoveColumns(Table.SelectRows(Unpivoted, each [failed] = true), {"failed"}),
+				    // check_label is the plain-English name shown on the report
+				    Names = #table(type table [test_code = text, test_name = text, test_sort = Int64.Type, risk_area = text, check_label = text], {
+				        {"T1", "T1 Entered on a weekend", 1, "Timing", "Posted on a weekend"},
+				        {"T2", "T2 Entered after hours", 2, "Timing", "Posted late at night"},
+				        {"T3", "T3 Round amount", 3, "Amount", "Suspiciously round amount"},
+				        {"T4", "T4 Just below approval limit", 4, "Authorisation", "Just under the ₹5 L approval limit"},
+				        {"T5", "T5 Prepared and approved by same user", 5, "Authorisation", "Approved by the same person"},
+				        {"T6", "T6 Missing or weak description", 6, "Documentation", "Vague or missing description"},
+				        {"T7", "T7 Backdated more than 10 days", 7, "Timing", "Backdated by over 10 days"},
+				        {"T8", "T8 Above limit without controller approval", 8, "Authorisation", "Over ₹5 L, no controller sign-off"},
+				        {"T9", "T9 Manual journal to revenue", 9, "Revenue", "Manual entry to sales"},
+				        {"T10", "T10 Manual journal to receivables control", 10, "Reconciliation", "Manual entry to customer balances"},
+				        {"T11", "T11 Possible duplicate vendor payment", 11, "Payments", "Possible double payment to supplier"}}),
+				    Joined = Table.NestedJoin(Failed, {"test_code"}, Names, {"test_code"}, "n", JoinKind.LeftOuter),
+				    Expanded = Table.ExpandTableColumn(Joined, "n", {"test_name", "test_sort", "risk_area", "check_label"}),
+				    Typed = Table.TransformColumnTypes(Expanded, {{"journal_amount", type number}, {"test_sort", Int64.Type}})
+				in
+				    Typed
+

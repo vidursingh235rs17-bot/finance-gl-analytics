@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "GL_Analytics_Light"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "8a2eb8d9-3954-49f7-95b7-ae65ff1c099b"
+  }
+}

@@ -1,0 +1,63 @@
+relationship 1bd73df1-ccd0-4f7a-96cc-9515f1a66555
+	joinOnDateBehavior: datePartOnly
+	fromColumn: ARInvoice.due_date
+	toColumn: LocalDateTable_9a9de497-13cd-4512-a0ed-e29fb7a90f18.Date
+
+relationship 6582e62b-e0a2-4838-8072-403e7a2fa898
+	joinOnDateBehavior: datePartOnly
+	fromColumn: ARInvoice.paid_date
+	toColumn: LocalDateTable_978c136c-8456-439b-af61-900d9742ce4e.Date
+
+relationship 166d9de9-906b-4640-ab0f-d985bcd3561d
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Journal.created_at
+	toColumn: LocalDateTable_79d0794f-9004-48d5-a06a-dde5fd75bff4.Date
+
+relationship 7007b4d4-d4c1-21d3-f66c-8cd53683153a
+	fromColumn: GL.account_id
+	toColumn: Account.account_id
+
+relationship f40341ca-aa8f-8404-284d-f6aba55a6c97
+	fromColumn: GL.journal_id
+	toColumn: Journal.journal_id
+
+relationship 38c1374f-c572-4625-817e-a859911a59c7
+	fromColumn: Journal.posting_date
+	toColumn: Date.date
+
+relationship c7f0eb2f-93c8-2d5c-d40e-c0fb0a8a16c7
+	fromColumn: Budget.month_start
+	toColumn: Date.date
+
+relationship f1357fcc-326f-8b2b-3b38-06f3fae32b21
+	fromColumn: Budget.account_id
+	toColumn: Account.account_id
+
+relationship 587e743c-a25a-05cd-d635-3ea8c9e8815d
+	fromColumn: ARInvoice.invoice_date
+	toColumn: Date.date
+
+relationship 9c07ba4b-10ac-381c-200e-7d8eca5d2e59
+	fromColumn: ARInvoice.customer_id
+	toColumn: Customer.customer_id
+
+relationship AutoDetected_53863766-fea2-4e57-9617-16258d951330
+	fromColumn: Budget.cost_centre_id
+	toColumn: CostCentre.cost_centre_id
+
+relationship AutoDetected_164e7bb8-0d0b-4551-8997-efd81b3617ed
+	fromColumn: GL.cost_centre_id
+	toColumn: CostCentre.cost_centre_id
+
+relationship f6ad8c08-c6ef-8da2-4b79-47e643b7b4be
+	fromColumn: Journal.prepared_by
+	toColumn: User.user_id
+
+relationship 3f1bef2c-163d-3c04-7a90-45a2cafeb122
+	fromColumn: Journal.party_id
+	toColumn: Vendor.vendor_id
+
+relationship JournalFlags_journal_id_Journal_journal_id
+	fromColumn: JournalFlags.journal_id
+	toColumn: Journal.journal_id
+

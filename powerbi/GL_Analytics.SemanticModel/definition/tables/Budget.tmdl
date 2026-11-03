@@ -1,0 +1,54 @@
+table Budget
+	lineageTag: f3b04b79-2816-446a-8bc3-a83cb81adeb9
+
+	column month_start
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 8ff0cd55-e2c1-4e26-a238-c92089773c6d
+		summarizeBy: none
+		sourceColumn: month_start
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column account_id
+		dataType: int64
+		formatString: 0
+		lineageTag: c47ddeb5-a1ec-40f9-8c02-0e2027c8cb12
+		summarizeBy: none
+		sourceColumn: account_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column cost_centre_id
+		dataType: string
+		lineageTag: 9d7f2326-2d8f-44b2-90af-d968c99df67b
+		summarizeBy: none
+		sourceColumn: cost_centre_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column budget_amount
+		dataType: int64
+		formatString: 0
+		lineageTag: 74dcef70-3d06-4958-85d1-43013b215261
+		summarizeBy: sum
+		sourceColumn: budget_amount
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Budget = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\Sammu\Documents\finance-gl-analytics\data\budget.csv"),[Delimiter=",", Columns=4, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"month_start", type date}, {"account_id", Int64.Type}, {"cost_centre_id", type text}, {"budget_amount", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

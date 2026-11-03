@@ -1,0 +1,247 @@
+table Journal
+	lineageTag: 48a50207-77de-447a-9ec7-5fef71ce3fe3
+
+	column journal_id
+		dataType: string
+		lineageTag: d47ea9a5-189d-4695-9459-4917fe1dab58
+		summarizeBy: none
+		sourceColumn: journal_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column posting_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 576b7867-036c-42c6-8370-35e415f2402f
+		summarizeBy: none
+		sourceColumn: posting_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column created_at
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 007348f1-174e-4544-bba7-b622140b5b28
+		summarizeBy: none
+		sourceColumn: created_at
+
+		variation Variation
+			isDefault
+			relationship: 166d9de9-906b-4640-ab0f-d985bcd3561d
+			defaultHierarchy: LocalDateTable_79d0794f-9004-48d5-a06a-dde5fd75bff4.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column source
+		dataType: string
+		lineageTag: 861c6adb-6fc5-4ff1-990e-b433a1b74389
+		summarizeBy: none
+		sourceColumn: source
+
+		annotation SummarizationSetBy = Automatic
+
+	column prepared_by
+		dataType: string
+		lineageTag: 79d87aff-9bfd-4405-a4cf-6fb7e39cfc54
+		summarizeBy: none
+		sourceColumn: prepared_by
+
+		annotation SummarizationSetBy = Automatic
+
+	column approved_by
+		dataType: string
+		lineageTag: 5136430f-a68e-47bd-835d-51c298b1dd63
+		summarizeBy: none
+		sourceColumn: approved_by
+
+		annotation SummarizationSetBy = Automatic
+
+	column description
+		dataType: string
+		lineageTag: ca65176b-da10-40e7-aa7f-15457dac9b85
+		summarizeBy: none
+		sourceColumn: description
+
+		annotation SummarizationSetBy = Automatic
+
+	column party_id
+		dataType: string
+		lineageTag: d344c2a6-9f41-4a8f-8afd-25290ca9ccc1
+		summarizeBy: none
+		sourceColumn: party_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column journal_amount
+		dataType: double
+		lineageTag: 98b9b2f5-bde0-4de1-8508-cd28d62fecc2
+		summarizeBy: sum
+		sourceColumn: journal_amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Manual journal entered on a weekend
+	column T1
+		dataType: boolean
+		lineageTag: c8b9565c-0878-4528-af9c-349f95bcfb73
+		summarizeBy: none
+		sourceColumn: T1
+
+	/// Manual journal entered after hours (21:00-06:00)
+	column T2
+		dataType: boolean
+		lineageTag: 3744374f-ee8d-4b58-9b64-5d39097c434d
+		summarizeBy: none
+		sourceColumn: T2
+
+	/// Round amount (multiple of 1,00,000)
+	column T3
+		dataType: boolean
+		lineageTag: 2d9f45cd-ef60-43f8-8f73-16737a37f70d
+		summarizeBy: none
+		sourceColumn: T3
+
+	/// Just below the 5 lakh approval limit
+	column T4
+		dataType: boolean
+		lineageTag: 2ad82535-6772-4006-ac0f-f2669542727a
+		summarizeBy: none
+		sourceColumn: T4
+
+	/// Prepared and approved by the same user
+	column T5
+		dataType: boolean
+		lineageTag: 3e47b7d8-6c5a-4ab6-90fb-ba45f798824f
+		summarizeBy: none
+		sourceColumn: T5
+
+	/// Missing or weak description
+	column T6
+		dataType: boolean
+		lineageTag: 9c328a86-a2b9-475e-bb62-2129a04ffa93
+		summarizeBy: none
+		sourceColumn: T6
+
+	/// Backdated more than 10 days
+	column T7
+		dataType: boolean
+		lineageTag: c4bf3fc1-d0bb-4697-8286-885f429d3312
+		summarizeBy: none
+		sourceColumn: T7
+
+	/// Above limit without controller approval
+	column T8
+		dataType: boolean
+		lineageTag: 4104f810-cc2b-40e3-89b9-d278ccee0b2d
+		summarizeBy: none
+		sourceColumn: T8
+
+	/// Manual journal to revenue
+	column T9
+		dataType: boolean
+		lineageTag: 296b0e4f-8038-4dfb-ba1c-6bba6bbb1fd2
+		summarizeBy: none
+		sourceColumn: T9
+
+	/// Manual journal to receivables control
+	column T10
+		dataType: boolean
+		lineageTag: 76230a46-8df3-4da2-8aca-78d286f312d7
+		summarizeBy: none
+		sourceColumn: T10
+
+	/// Possible duplicate vendor payment
+	column T11
+		dataType: boolean
+		lineageTag: 53a83186-5002-47d6-87db-ee9256f7e46f
+		summarizeBy: none
+		sourceColumn: T11
+
+	column flag_count
+		dataType: int64
+		formatString: 0
+		lineageTag: 60506a81-7a53-4df3-8a64-6d4b8504f4c6
+		summarizeBy: none
+		sourceColumn: flag_count
+
+	column is_flagged
+		dataType: boolean
+		lineageTag: ddf96113-7a2d-4660-8a09-8ce8740f7d92
+		summarizeBy: none
+		sourceColumn: is_flagged
+
+	column entry_lag_days
+		dataType: int64
+		formatString: 0
+		lineageTag: 7f886362-10a6-43fb-ae69-27d6f61909d0
+		summarizeBy: none
+		sourceColumn: entry_lag_days
+
+	partition Journal = m
+		mode: import
+		source =
+				let
+				    ApprovalLimit = 500000,          // manual journals at or above this need the Financial Controller
+				    ControllerId = "U08",
+				
+				    Source = Csv.Document(File.Contents("C:\Users\Sammu\Documents\finance-gl-analytics\data\journal_header.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {
+				        {"journal_id", type text}, {"posting_date", type date}, {"created_at", type datetime}, {"source", type text},
+				        {"prepared_by", type text}, {"approved_by", type text}, {"description", type text}, {"party_id", type text},
+				        {"journal_amount", type number}}, "en-US"),
+				    Clean = Table.ReplaceValue(Typed, null, "", Replacer.ReplaceValue, {"description", "approved_by", "party_id"}),
+				
+				    // journals that touch revenue (4000-4999) or the receivables control account (1100)
+				    RevenueIds = List.Buffer(List.Distinct(Table.SelectRows(GL, each [account_id] >= 4000 and [account_id] < 5000)[journal_id])),
+				    ReceivableIds = List.Buffer(List.Distinct(Table.SelectRows(GL, each [account_id] = 1100)[journal_id])),
+				
+				    // payments to the same vendor for the same amount within 7 days of each other
+				    Payments = Table.SelectColumns(Table.SelectRows(Clean, each [source] = "Payment"),
+				        {"journal_id", "party_id", "journal_amount", "posting_date"}),
+				    Other = Table.RenameColumns(Payments, {{"journal_id", "o_id"}, {"party_id", "o_party"},
+				        {"journal_amount", "o_amount"}, {"posting_date", "o_date"}}),
+				    Pairs = Table.Join(Payments, {"party_id", "journal_amount"}, Other, {"o_party", "o_amount"}, JoinKind.Inner),
+				    Close = Table.SelectRows(Pairs, each [journal_id] <> [o_id]
+				        and Number.Abs(Duration.Days([posting_date] - [o_date])) <= 7),
+				    DuplicateIds = List.Buffer(List.Distinct(Close[journal_id])),
+				
+				    T1 = Table.AddColumn(Clean, "T1", each [source] = "Manual"
+				        and Date.DayOfWeek([created_at], Day.Monday) >= 5, type logical),
+				    T2 = Table.AddColumn(T1, "T2", each [source] = "Manual"
+				        and (Time.Hour([created_at]) >= 21 or Time.Hour([created_at]) < 6), type logical),
+				    T3 = Table.AddColumn(T2, "T3", each [source] = "Manual"
+				        and [journal_amount] >= 100000 and Number.Mod([journal_amount], 100000) = 0, type logical),
+				    T4 = Table.AddColumn(T3, "T4", each [source] = "Manual"
+				        and [journal_amount] >= 0.9 * ApprovalLimit and [journal_amount] < ApprovalLimit, type logical),
+				    T5 = Table.AddColumn(T4, "T5", each [source] = "Manual"
+				        and [prepared_by] = [approved_by], type logical),
+				    T6 = Table.AddColumn(T5, "T6", each [source] = "Manual"
+				        and Text.Length(Text.Trim([description])) < 6, type logical),
+				    T7 = Table.AddColumn(T6, "T7", each [source] = "Manual"
+				        and Duration.Days(Date.From([created_at]) - [posting_date]) > 10, type logical),
+				    T8 = Table.AddColumn(T7, "T8", each [source] = "Manual"
+				        and [journal_amount] >= ApprovalLimit and [approved_by] <> ControllerId, type logical),
+				    T9 = Table.AddColumn(T8, "T9", each [source] = "Manual"
+				        and List.Contains(RevenueIds, [journal_id]), type logical),
+				    T10 = Table.AddColumn(T9, "T10", each [source] = "Manual"
+				        and List.Contains(ReceivableIds, [journal_id]), type logical),
+				    T11 = Table.AddColumn(T10, "T11", each [source] = "Payment"
+				        and List.Contains(DuplicateIds, [journal_id]), type logical),
+				
+				    FlagCount = Table.AddColumn(T11, "flag_count", each List.Count(List.Select(
+				        {[T1], [T2], [T3], [T4], [T5], [T6], [T7], [T8], [T9], [T10], [T11]}, each _ = true)), Int64.Type),
+				    IsFlagged = Table.AddColumn(FlagCount, "is_flagged", each [flag_count] > 0, type logical),
+				    EntryLag = Table.AddColumn(IsFlagged, "entry_lag_days",
+				        each Duration.Days(Date.From([created_at]) - [posting_date]), Int64.Type)
+				in
+				    EntryLag
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

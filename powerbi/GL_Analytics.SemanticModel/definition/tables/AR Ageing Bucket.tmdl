@@ -1,0 +1,47 @@
+/// Ageing buckets (days past due). Not related to other tables: measures read the selected bucket's day range.
+table 'AR Ageing Bucket'
+	lineageTag: 78930ce5-9c85-405a-92d1-ab2c782f3b3c
+
+	column ageing_bucket
+		lineageTag: acd5381c-b0a7-4485-9820-2398af98a79e
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [ageing_bucket]
+		sortByColumn: ageing_sort
+
+	column ageing_sort
+		isHidden
+		lineageTag: 62ad0a54-2add-4370-9b77-f4ed10089d99
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [ageing_sort]
+
+	column min_days
+		isHidden
+		lineageTag: 5f63faeb-5281-441c-bb1b-1091c3239557
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [min_days]
+
+	column max_days
+		isHidden
+		lineageTag: 3ac25442-b03a-4c37-a7ca-d7081fe1ae7c
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [max_days]
+
+	partition 'AR Ageing Bucket' = calculated
+		mode: import
+		source =
+				DATATABLE (
+				    "ageing_bucket", STRING, "ageing_sort", INTEGER, "min_days", INTEGER, "max_days", INTEGER,
+				    {
+				        { "Not due", 1, -100000, 0 },
+				        { "1-30", 2, 1, 30 },
+				        { "31-60", 3, 31, 60 },
+				        { "61-90", 4, 61, 90 },
+				        { "91-180", 5, 91, 180 },
+				        { "Over 180", 6, 181, 100000 }
+				    }
+				)
+

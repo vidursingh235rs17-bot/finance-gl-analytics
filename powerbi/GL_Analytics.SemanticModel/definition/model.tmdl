@@ -1,0 +1,36 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-IN
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["Date","ARInvoice","Budget","Account","CostCentre","Customer","User","Vendor","Journal","GL","Measures (2)"]
+
+annotation PBI_ProTooling = ["DevMode","MCP-PBIModeling"]
+
+ref table Date
+ref table DateTableTemplate_b01e36b9-f81e-4cd1-ad7d-f133dff3865d
+ref table ARInvoice
+ref table LocalDateTable_9a9de497-13cd-4512-a0ed-e29fb7a90f18
+ref table LocalDateTable_978c136c-8456-439b-af61-900d9742ce4e
+ref table Budget
+ref table Account
+ref table CostCentre
+ref table Customer
+ref table User
+ref table Vendor
+ref table Journal
+ref table LocalDateTable_79d0794f-9004-48d5-a06a-dde5fd75bff4
+ref table GL
+ref table 'Measures (2)'
+ref table 'AR Ageing Bucket'
+ref table JournalFlags
+ref table 'Cash Flow Line'
+
+ref cultureInfo en-US
+
